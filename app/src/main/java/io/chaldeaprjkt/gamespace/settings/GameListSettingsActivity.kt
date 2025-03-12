@@ -28,7 +28,7 @@ class GameListSettingsActivity : Hilt_GameListSettingsActivity() {
         if (savedInstanceState == null) {
             supportFragmentManager
                 .beginTransaction()
-                .replace(com.android.settingslib.R.id.content_frame, GameListSettingsFragment())
+                .replace(com.android.settingslib.collapsingtoolbar.R.id.content_frame, GameListSettingsFragment())
                 .commit()
         }
     }

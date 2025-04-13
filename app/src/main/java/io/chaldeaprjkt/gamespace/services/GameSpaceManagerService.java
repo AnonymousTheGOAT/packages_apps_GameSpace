@@ -42,7 +42,7 @@ public class GameSpaceManagerService extends Service {
     private static final String MODE_PERFORMANCE = "2";
 
     private static final String NOTIFICATION_CHANNEL_ID = "gamespace_notif_channel";
-    private static final String NOTIFICATION_CHANNEL_NAME = "GameSpace";
+    private static final String NOTIFICATION_CHANNEL_NAME = "Game Mode Service";
 
     private Handler mBackgroundHandler;
     private HandlerThread mHandlerThread;
@@ -260,7 +260,7 @@ public class GameSpaceManagerService extends Service {
     }
 
     private void createNotificationChannel() {
-        mChannel.setDescription("GameSpace Notifications");
+        mChannel.setDescription("Game Mode Service Notifications");
         mChannel.enableVibration(true);
         mChannel.enableLights(true);
         mNotificationManager.createNotificationChannel(mChannel);

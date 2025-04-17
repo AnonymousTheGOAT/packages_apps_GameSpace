@@ -26,13 +26,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.database.ContentObserver;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,6 +49,7 @@ public class GameSpaceManagerService extends Service {
     private NotificationChannel mChannel;
     private NotificationManager mNotificationManager;
     private ContentResolver mContentResolver;
+    private GameListObserver mGameListObserver;
 
     public class LocalBinder extends Binder {
         public GameSpaceManagerService getService() {
@@ -66,7 +67,6 @@ public class GameSpaceManagerService extends Service {
         mBinder = new LocalBinder();
         mHandler = new Handler(Looper.getMainLooper());
         mPackageManager = getPackageManager();
-        mContentResolver = getContentResolver();
         mPackageChangeReceiver = new PackageChangeReceiver();
 
         IntentFilter filter = new IntentFilter();
@@ -74,6 +74,14 @@ public class GameSpaceManagerService extends Service {
         filter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
         filter.addDataScheme("package");
         registerReceiver(mPackageChangeReceiver, filter);
+
+        mGameListObserver = GameListObserver(mHandler);
+
+        mContentResolver = getContentResolver();
+        mContentResolver.registerContentObserver(
+                Settings.System.getUriFor(GAME_LIST_SETTING), false, mGameListObserver);
+
+        sanitizeGameList();
 
         mChannel =
                 new NotificationChannel(
@@ -96,7 +104,8 @@ public class GameSpaceManagerService extends Service {
         mChannel = null;
 
         unregisterReceiver(mPackageChangeReceiver);
-
+        mContentResolver.unregisterContentObserver(mGameListObserver);
+        mGameListObserver = null;
         mPackageChangeReceiver = null;
         mContentResolver = null;
         mPackageManager = null;
@@ -145,18 +154,21 @@ public class GameSpaceManagerService extends Service {
         boolean alreadyExists = false;
 
         if (currentList != null && !currentList.isEmpty()) {
-            String[] entries = currentList.split(",");
+            String[] entries = currentList.split(";");
             for (String entry : entries) {
-                if (entry.startsWith(packageName + "=")) {
-                    alreadyExists = true;
+                String[] parts = entry.split("=");
+                if (parts.length == 2 && isValidMode(parts[1])) {
+                    if (parts[0].equals(packageName)) {
+                        alreadyExists = true;
+                    }
+                    updatedSet.add(parts[0] + "=" + parts[1]);
                 }
-                updatedSet.add(entry);
             }
         }
 
         if (!alreadyExists) {
             updatedSet.add(packageName + "=2");
-            String updatedList = String.join(",", updatedSet);
+            String updatedList = String.join(";", updatedSet);
             Settings.System.putString(mContentResolver, GAME_LIST_SETTING, updatedList);
             sendGameAddedNotification(packageName);
         }
@@ -167,10 +179,57 @@ public class GameSpaceManagerService extends Service {
 
         if (currentList == null || currentList.isEmpty()) return;
 
-        Set<String> gameSet = new HashSet<>(Arrays.asList(currentList.split(",")));
-        if (gameSet.removeIf(entry -> entry.startsWith(packageName + "="))) {
-            Settings.System.putString(
-                    mContentResolver, GAME_LIST_SETTING, String.join(",", gameSet));
+        Set<String> updatedSet = new HashSet<>();
+        String[] entries = currentList.split(";");
+
+        for (String entry : entries) {
+            String[] parts = entry.split("=");
+            if (parts.length == 2 && isValidMode(parts[1])) {
+                if (!parts[0].equals(packageName)) {
+                    updatedSet.add(parts[0] + "=" + parts[1]);
+                }
+            }
+        }
+
+        String updatedList = String.join(";", updatedSet);
+        Settings.System.putString(mContentResolver, GAME_LIST_SETTING, updatedList);
+    }
+
+    private boolean isValidMode(String modeStr) {
+        return modeStr.equals("1") || modeStr.equals("2") || modeStr.equals("3");
+    }
+
+    private void sanitizeGameList() {
+        String currentList = Settings.System.getString(mContentResolver, GAME_LIST_SETTING);
+        if (currentList == null || currentList.isEmpty()) return;
+
+        Set<String> sanitizedSet = new HashSet<>();
+        String[] entries = currentList.split(";");
+
+        for (String entry : entries) {
+            int firstEquals = entry.indexOf('=');
+            if (firstEquals > 0 && firstEquals < entry.length() - 1) {
+                String key = entry.substring(0, firstEquals).trim();
+                String value = entry.substring(firstEquals + 1).split("[^0-9]", 2)[0].trim();
+                if (isValidMode(value)) {
+                    sanitizedSet.add(key + "=" + value);
+                }
+            }
+        }
+
+        String sanitizedList = String.join(";", sanitizedSet);
+        Settings.System.putString(mContentResolver, GAME_LIST_SETTING, sanitizedList);
+    }
+
+    private class GameListObserver extends ContentObserver {
+        public GameListObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+            sanitizeGameList();
         }
     }
 

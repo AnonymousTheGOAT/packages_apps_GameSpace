@@ -9,6 +9,9 @@
 
     <string name="app_name" translatable="false">Game Mode Service</string>
 
+    <!-- Service -->
+    <string name="gamespace_new_game_added"><xliff:g id="name" example="MyApp">%s</xliff:g> added to GameSpace</string>
+
     <!-- Settings -->
     <string name="settings_title">Game mode</string>
     <string name="settings_summary">Enhance your gaming experience</string>

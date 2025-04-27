@@ -96,7 +96,7 @@ public class GameSpaceManagerService extends Service {
                 new NotificationChannel(
                         NOTIFICATION_CHANNEL_ID,
                         NOTIFICATION_CHANNEL_NAME,
-                        NotificationManager.IMPORTANCE_HIGH);
+                        NotificationManager.IMPORTANCE_LOW);
 
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -283,9 +283,9 @@ public class GameSpaceManagerService extends Service {
                         .setSmallIcon(R.drawable.ic_launcher_foreground)
                         .setContentTitle(NOTIFICATION_CHANNEL_NAME)
                         .setContentText(getString(R.string.gamespace_new_game_added, finalAppName))
-                        .setPriority(Notification.PRIORITY_HIGH)
-                        .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
+                        .setPriority(NotificationManager.IMPORTANCE_LOW)
                         .setAutoCancel(true)
+                        .setBlockable(true)
                         .build();
 
         mNotificationManager.notify(packageName.hashCode(), notification);

@@ -280,7 +280,7 @@ public class GameSpaceManagerService extends Service {
 
         Notification notification =
                 new Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
-                        .setSmallIcon(android.R.mipmap.sym_def_app_icon)
+                        .setSmallIcon(R.drawable.ic_launcher_foreground)
                         .setContentTitle(NOTIFICATION_CHANNEL_NAME)
                         .setContentText(getString(R.string.gamespace_new_game_added, finalAppName))
                         .setPriority(Notification.PRIORITY_HIGH)

@@ -1,14 +1,14 @@
 android_app {
     name: "GameSpace",
+    defaults: [
+        "SettingsLibDefaults",
+    ],
     platform_apis: true,
     privileged: true,
     system_ext_specific: true,
     manifest: "AndroidManifest.xml",
     certificate: "platform",
-    resource_dirs: ["res"],
-    defaults: [
-        "SettingsLibDefaults",
-    ],
+
     srcs: [
         "java/**/*.java",
         "java/**/*.kt",
@@ -48,7 +48,7 @@ prebuilt_etc_xml {
     src: "privapp_whitelist_io.chaldeaprjkt.gamespace.xml",
     system_ext_specific: true,
     filename_from_src: true,
-    sub_dir: "permissions",
+    relative_install_path: "permissions",
 }
 
 prebuilt_etc {
@@ -56,5 +56,5 @@ prebuilt_etc {
     src: "default-permissions_io.chaldeaprjkt.gamespace.xml",
     system_ext_specific: true,
     filename_from_src: true,
-    sub_dir: "default-permissions",
+    relative_install_path: "default-permissions",
 }

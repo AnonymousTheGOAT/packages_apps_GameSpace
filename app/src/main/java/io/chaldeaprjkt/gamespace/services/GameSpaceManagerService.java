@@ -263,6 +263,7 @@ public class GameSpaceManagerService extends Service {
         mChannel.setDescription("Game Mode Service Notifications");
         mChannel.enableVibration(true);
         mChannel.enableLights(true);
+        mChannel.setBlockable(true);
         mNotificationManager.createNotificationChannel(mChannel);
     }
 
@@ -285,7 +286,6 @@ public class GameSpaceManagerService extends Service {
                         .setContentText(getString(R.string.gamespace_new_game_added, finalAppName))
                         .setPriority(NotificationManager.IMPORTANCE_LOW)
                         .setAutoCancel(true)
-                        .setBlockable(true)
                         .build();
 
         mNotificationManager.notify(packageName.hashCode(), notification);

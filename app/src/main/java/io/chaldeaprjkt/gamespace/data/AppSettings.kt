@@ -55,7 +55,7 @@ class AppSettings @Inject constructor(private val context: Context) {
         set(value) = db.edit().putBoolean(KEY_STAY_AWAKE, value).apply()
 
     var danmakuNotification
-        get() = db.getBoolean(KEY_DANMAKU_NOTIFICATION_MODE, true)
+        get() = db.getBoolean(KEY_DANMAKU_NOTIFICATION_MODE, false)
         set(value) = db.edit().putBoolean(KEY_DANMAKU_NOTIFICATION_MODE, value).apply()
 
     var callsMode: Int

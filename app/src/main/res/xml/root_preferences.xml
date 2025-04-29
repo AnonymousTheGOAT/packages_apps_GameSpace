@@ -48,7 +48,7 @@
         android:title="@string/in_game_preferences_title">
 
         <SwitchPreferenceCompat
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="gamespace_danmaku_notification_mode"
             android:summary="@string/danmaku_notification_mode_summary"
             android:title="@string/danmaku_notification_mode_title" />

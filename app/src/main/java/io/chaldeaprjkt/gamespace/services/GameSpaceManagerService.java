@@ -10,6 +10,7 @@ package io.chaldeaprjkt.gamespace.services;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -17,6 +18,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.LauncherActivityInfo;
+import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.os.Binder;
@@ -27,9 +30,11 @@ import android.os.UserHandle;
 import android.provider.Settings;
 
 import io.chaldeaprjkt.gamespace.R;
+import io.chaldeaprjkt.gamespace.utils.ExtensionsKt;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,6 +68,11 @@ public class GameSpaceManagerService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
     }
 
     @Override
@@ -279,15 +289,32 @@ public class GameSpaceManagerService extends Service {
         }
         final String finalAppName = appName;
 
-        Notification notification =
+        Notification.Builder notification =
                 new Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_launcher_foreground)
                         .setContentTitle(NOTIFICATION_CHANNEL_NAME)
                         .setContentText(getString(R.string.gamespace_new_game_added, finalAppName))
                         .setPriority(NotificationManager.IMPORTANCE_LOW)
-                        .setAutoCancel(true)
-                        .build();
+                        .setAutoCancel(true);
 
-        mNotificationManager.notify(packageName.hashCode(), notification);
+        LauncherActivityInfo activity = ExtensionsKt.getAppInfoForPackage(this, packageName);
+        if (activity != null) {
+            Intent intent = new Intent();
+            intent.setComponent(activity.getComponentName());
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            PendingIntent activityIntent =
+                    PendingIntent.getActivityAsUser(
+                            this,
+                            packageName.hashCode(),
+                            intent,
+                            PendingIntent.FLAG_IMMUTABLE,
+                            null,
+                            UserHandle.CURRENT);
+
+            notification.setContentIntent(activityIntent);
+        }
+
+        mNotificationManager.notify(packageName.hashCode(), notification.build());
     }
 }

@@ -22,6 +22,10 @@ import android.app.Service
 import android.content.Context
 import android.content.res.Resources.getSystem
 import android.graphics.Point
+import android.os.Process
+import android.content.pm.LauncherActivityInfo
+import android.content.pm.LauncherApps
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import dagger.hilt.EntryPoints
@@ -53,3 +57,30 @@ fun Context.isServiceRunning(serviceClass: Class<*>): Boolean =
     (getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager)
         .getRunningServices(Integer.MAX_VALUE)
         .any { it.service.className == serviceClass.name }
+
+fun Context.getAppInfoForPackage(packageName: String): LauncherActivityInfo? {
+    try {
+        val launcherApps: LauncherApps? =
+            getSystemService(LauncherApps::class.java) as LauncherApps? ?: return null
+        val activityList: List<LauncherActivityInfo>? =
+            launcherApps?.getActivityList(packageName, Process.myUserHandle()) ?: return null
+
+        activityList?.let {
+            for (activityInfo in it) {
+                if (
+                    launcherApps?.getMainActivityLaunchIntent(
+                        activityInfo.componentName,
+                        null,
+                        activityInfo.user,
+                    ) != null
+                ) {
+                    return activityInfo
+                }
+            }
+        }
+    } catch (e: RuntimeException) {
+        Log.w("Failed to get app info for package: ${packageName}", e)
+    }
+
+    return null
+}

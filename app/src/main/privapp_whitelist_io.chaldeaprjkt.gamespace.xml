@@ -19,6 +19,7 @@
         <permission name="android.permission.ANSWER_PHONE_CALLS" />
         <permission name="android.permission.GET_TASKS" />
         <permission name="android.permission.INTERACT_ACROSS_USERS" />
+        <permission name="android.permission.INTERACT_ACROSS_USERS_FULL" />
         <permission name="android.permission.MANAGE_GAME_MODE" />
         <permission name="android.permission.QUERY_ALL_PACKAGES" />
         <permission name="android.permission.READ_DEVICE_CONFIG" />
@@ -32,5 +33,6 @@
         <permission name="android.permission.READ_PHONE_STATE"/>
         <permission name="android.permission.FOREGROUND_SERVICE" />
         <permission name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+        <permission name="android.permission.START_TASKS_FROM_RECENTS"/>
     </privapp-permissions>
 </permissions>

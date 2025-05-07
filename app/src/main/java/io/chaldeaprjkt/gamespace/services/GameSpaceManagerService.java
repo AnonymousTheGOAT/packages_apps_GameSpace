@@ -19,7 +19,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.LauncherActivityInfo;
-import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.os.Binder;
@@ -34,7 +33,6 @@ import io.chaldeaprjkt.gamespace.utils.ExtensionsKt;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -301,7 +299,10 @@ public class GameSpaceManagerService extends Service {
         if (activity != null) {
             Intent intent = new Intent();
             intent.setComponent(activity.getComponentName());
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK
+                            | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+                            | Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
 
             PendingIntent activityIntent =
                     PendingIntent.getActivityAsUser(

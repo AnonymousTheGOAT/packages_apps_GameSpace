@@ -37,6 +37,7 @@ import androidx.core.view.isVisible
 import androidx.core.view.marginStart
 import androidx.core.view.updateMargins
 import androidx.core.view.updatePadding
+import androidx.core.view.updatePaddingRelative
 import com.android.systemui.screenrecord.IRecordingCallback
 import dagger.hilt.android.AndroidEntryPoint
 import io.chaldeaprjkt.gamespace.R
@@ -63,6 +64,11 @@ class GameBarService : Hilt_GameBarService() {
 
     private val wm by lazy { getSystemService(WINDOW_SERVICE) as WindowManager }
     private val handler by lazy { Handler(Looper.getMainLooper()) }
+    private val inflater by lazy { LayoutInflater.from(this) }
+
+    private var halfWidth = 0
+    private var safeHeight = 0
+    private var safeArea = 0
 
     private val barLayoutParam =
         WindowManager.LayoutParams(
@@ -102,7 +108,10 @@ class GameBarService : Hilt_GameBarService() {
     private lateinit var panelView: PanelView
     private val binder = GameBarBinder()
     private val firstPaint = Runnable { initActions() }
-    private var barExpanded: Boolean = false
+    private var shouldClose = false
+    private var isGameStarting = false
+
+    private var barExpanded = false
         set(value) {
             field = value
             menuSwitcher.updateIconState(value, barLayoutParam.x)
@@ -115,7 +124,7 @@ class GameBarService : Hilt_GameBarService() {
             updateContainerGaps()
         }
 
-    private var showPanel: Boolean = false
+    private var showPanel = false
         set(value) {
             field = value
             if (value) {
@@ -124,48 +133,46 @@ class GameBarService : Hilt_GameBarService() {
                 }
                 if (!rootPanelView.isAttachedToWindow) {
                     wm.addView(rootPanelView, panelLayoutParam)
-                    rootPanelView.alpha = 0f
-                    rootPanelView.visibility = View.VISIBLE
-                    rootPanelView.animate()
-                        .alpha(1f)
-                        .setDuration(300)
-                        .start()
-                } else {
-                    wm.updateViewLayout(rootPanelView, panelLayoutParam)
+                    rootPanelView.fadeIn()
                 }
             } else {
-                if (::rootPanelView.isInitialized && rootPanelView.isAttachedToWindow) {
-                    rootPanelView.animate()
-                        .alpha(0f)
-                        .setDuration(300)
-                        .withEndAction {
-                            rootPanelView.visibility = View.INVISIBLE
-                            handler.postDelayed({
-                                runCatching {
-                                    if (rootPanelView.isAttachedToWindow) {
-                                        wm.removeView(rootPanelView)
-                                    }
-                                }.onFailure { it.printStackTrace() }
-                            }, 50)
-                        }
-                        .start()
+                if (safeAttached(::rootPanelView.isInitialized, rootPanelView)) {
+                    rootPanelView.fadeOut {
+                        rootPanelView.visibility = View.INVISIBLE
+                        handler.postDelayed(
+                            {
+                                runCatching { wm.removeView(rootPanelView) }
+                                    .onFailure { it.printStackTrace() }
+                            },
+                            50,
+                        )
+                    }
                 }
             }
         }
 
-    private var barAdded = false
-
-    // Whether to ignore the initActions (floating action) or not
-    private var shouldClose = false
-
     override fun onCreate() {
         super.onCreate()
         val frame = FrameLayout(this)
-        rootBarView = LayoutInflater.from(this)
-            .inflate(R.layout.window_util, frame, false)!!
-        barView = rootBarView.findViewById(R.id.container_bar)!!
-        menuSwitcher = rootBarView.findViewById(R.id.action_menu_switcher)!!
+        rootBarView = inflater.inflate(R.layout.window_util, frame, false)
+        barView = rootBarView.findViewById(R.id.container_bar)
+        menuSwitcher = rootBarView.findViewById(R.id.action_menu_switcher)
+        applyOpacity()
+        updateScreenMetrics()
         danmakuService.init()
+    }
+
+    private fun updateScreenMetrics() {
+        val bounds = wm.maximumWindowMetrics.bounds
+        halfWidth = bounds.width() / 2
+        safeArea = statusbarHeight + 4.dp
+        safeHeight = bounds.height() - safeArea
+    }
+
+    private fun applyOpacity() {
+        val alphaValue = appSettings.menuOpacity / 100f
+        barView.alpha = alphaValue
+        menuSwitcher.alpha = alphaValue
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -190,6 +197,7 @@ class GameBarService : Hilt_GameBarService() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+        updateScreenMetrics()
         if (!rootBarView.isVisible) {
             handler.removeCallbacks(firstPaint)
             handler.postDelayed({
@@ -202,77 +210,60 @@ class GameBarService : Hilt_GameBarService() {
         danmakuService.updateConfiguration(newConfig)
     }
 
-    // for client service
     fun onGameStart() {
-        shouldClose = false
-        rootBarView.isVisible = false
-        rootBarView.alpha = 0f
-        updateRootBarView()
-        handler.postDelayed(firstPaint, 500)
+        if (isGameStarting) return
+        isGameStarting = true
+
+        handler.post {
+            if (!::rootBarView.isInitialized) return@post
+            if (safeAttached(::rootBarView.isInitialized, rootBarView)) {
+                isGameStarting = false
+                return@post
+            }
+
+            shouldClose = false
+            rootBarView.isVisible = false
+            rootBarView.alpha = 0f
+            wm.addView(rootBarView, barLayoutParam)
+            handler.postDelayed(firstPaint, 500)
+            isGameStarting = false
+        }
     }
 
     fun onGameLeave() {
         shouldClose = true
-
         handler.removeCallbacksAndMessages(null)
 
         runCatching {
-            if (::rootPanelView.isInitialized 
-                    && rootPanelView.isAttachedToWindow) {
+            if (safeAttached(::rootPanelView.isInitialized, rootPanelView)) {
                 wm.removeViewImmediate(rootPanelView)
             }
-        }.onFailure { it.printStackTrace() }
+        }
 
         runCatching {
-            if (::rootBarView.isInitialized 
-                    && rootBarView.isAttachedToWindow) {
+            if (safeAttached(::rootBarView.isInitialized, rootBarView)) {
                 wm.removeViewImmediate(rootBarView)
             }
-        }.onFailure { it.printStackTrace() }
-
-        barAdded = false
+        }
 
         stopForeground(true)
         stopSelf()
     }
 
-    private fun updateRootBarView() {
-        if (!::rootBarView.isInitialized) return
-
-        runCatching {
-            if (barAdded) {
-                wm.removeViewImmediate(rootBarView)
-            }
-            wm.addView(rootBarView, barLayoutParam)
-            barAdded = true
-        }.onFailure {
-            it.printStackTrace()
-            runCatching {
-                if (barAdded) {
-                    wm.updateViewLayout(rootBarView, barLayoutParam)
-                }
-            }.onFailure { err -> err.printStackTrace() }
-        }
-    }
-
-    private fun updateLayout(with: (WindowManager.LayoutParams) -> Unit = {}) {
+    private fun updateLayout(update: WindowManager.LayoutParams.() -> Unit = {}) {
+        barLayoutParam.update()
         if (rootBarView.isAttachedToWindow) {
-            wm.updateViewLayout(rootBarView, barLayoutParam.apply(with))
+            wm.updateViewLayout(rootBarView, barLayoutParam)
         }
     }
 
     private fun initActions() {
         if (shouldClose) return
-        rootBarView.isVisible = true
-        rootBarView.animate()
-            .alpha(1f)
-            .apply { duration = 300 }
-            .start()
+        rootBarView.fadeIn()
         barExpanded = false
         barLayoutParam.x = appSettings.x
         barLayoutParam.y = appSettings.y
         dockCollapsedMenu()
-
         menuSwitcherButton()
         panelButton()
         screenshotButton()
@@ -294,19 +285,23 @@ class GameBarService : Hilt_GameBarService() {
     }
 
     private fun updateContainerGaps() {
-        if (barExpanded) {
-            barView.updatePadding(8, 8, 8, 8)
-            (barView.layoutParams as ViewGroup.MarginLayoutParams)
-                .updateMargins(right = 48, left = 48)
-        } else {
-            barView.updatePadding(0, 0, 0, 0)
-            (barView.layoutParams as ViewGroup.MarginLayoutParams)
-                .updateMargins(right = 0, left = 0)
+        val currentParams = barView.layoutParams as ViewGroup.MarginLayoutParams
+        val targetLeft = if (barExpanded) 48 else 0
+        val targetRight = if (barExpanded) 48 else 0
+
+        if (currentParams.leftMargin != targetLeft || currentParams.rightMargin != targetRight) {
+            barView.updatePaddingRelative(
+                start = if (barExpanded) 8 else 0,
+                top = if (barExpanded) 8 else 0,
+                end = if (barExpanded) 8 else 0,
+                bottom = if (barExpanded) 8 else 0,
+            )
+            currentParams.setMargins(targetLeft, 0, targetRight, 0)
+            barView.layoutParams = currentParams
         }
     }
 
     private fun dockCollapsedMenu() {
-        val halfWidth = wm.maximumWindowMetrics.bounds.width() / 2
         if (barLayoutParam.x < 0) {
             barView.translationX = -22f
             barLayoutParam.x = -halfWidth
@@ -315,24 +310,23 @@ class GameBarService : Hilt_GameBarService() {
             barLayoutParam.x = halfWidth
         }
 
-        val safeArea = statusbarHeight + 4.dp
-        val safeHeight = wm.maximumWindowMetrics.bounds.height() - safeArea
         barLayoutParam.y = barLayoutParam.y.coerceIn(safeArea, safeHeight)
-
         updateBackground()
         updateContainerGaps()
         menuSwitcher.showFps = if (barExpanded) false else appSettings.showFps
         menuSwitcher.updateIconState(barExpanded, barLayoutParam.x)
-        updateRootBarView()
+        if (safeAttached(::rootBarView.isInitialized, rootBarView)) {
+            wm.updateViewLayout(rootBarView, barLayoutParam)
+        }
     }
 
     private fun setupPanelView() {
-        rootPanelView = LayoutInflater.from(this)
-            .inflate(R.layout.window_panel, FrameLayout(this), false) as LinearLayout
+        rootPanelView =
+            inflater.inflate(R.layout.window_panel, FrameLayout(this), false) as LinearLayout
         rootPanelView.alpha = 0f
         rootPanelView.visibility = View.INVISIBLE
 
-        panelView = rootPanelView.findViewById(R.id.panel_view)!!
+        panelView = rootPanelView.findViewById(R.id.panel_view)
         panelView.alpha = appSettings.menuOpacity / 100f
 
         rootPanelView.setOnClickListener {
@@ -350,22 +344,22 @@ class GameBarService : Hilt_GameBarService() {
     }
 
     private fun takeShot() {
-        val afterShot: () -> Unit = {
+        val afterShot = {
             barExpanded = false
-            handler.postDelayed({
-                updateLayout { it.alpha = 1f }
-            }, 100)
+            handler.postDelayed({ updateLayout { alpha = 1f } }, 100)
         }
 
-        updateLayout { it.alpha = 0f }
-        handler.postDelayed({
-            runCatching {
-                screenUtils.takeScreenshot { afterShot() }
-            }.onFailure {
-                it.printStackTrace()
-                afterShot()
-            }
-        }, 250)
+        updateLayout { alpha = 0f }
+        handler.postDelayed(
+            {
+                runCatching { screenUtils.takeScreenshot { afterShot() } }
+                    .onFailure {
+                        it.printStackTrace()
+                        afterShot()
+                    }
+            },
+            250,
+        )
     }
 
     private fun menuSwitcherButton() {
@@ -380,8 +374,8 @@ class GameBarService : Hilt_GameBarService() {
                     barView.translationX = 0f
                 }
                 updateLayout {
-                    it.x = x
-                    it.y = y
+                    this.x = x
+                    this.y = y
                 }
                 updateBackground()
             },
@@ -396,7 +390,7 @@ class GameBarService : Hilt_GameBarService() {
     }
 
     private fun panelButton() {
-        val actionPanel = rootBarView.findViewById<ImageButton>(R.id.action_panel)!!
+        val actionPanel = rootBarView.findViewById<ImageButton>(R.id.action_panel)
         actionPanel.setOnClickListener {
             showPanel = !showPanel
         }
@@ -407,41 +401,62 @@ class GameBarService : Hilt_GameBarService() {
     }
 
     private fun screenshotButton() {
-        val actionScreenshot = rootBarView.findViewById<ImageButton>(R.id.action_screenshot)!!
-        actionScreenshot.setOnClickListener {
-            takeShot()
+        rootBarView.findViewById<ImageButton>(R.id.action_screenshot).apply {
+            alpha = appSettings.menuOpacity / 100f
+            setOnClickListener { takeShot() }
         }
     }
 
     private fun recorderButton() {
-        val actionRecorder = rootBarView.findViewById<ImageButton>(R.id.action_record)!!
-        val recorder = screenUtils.recorder ?: let { actionRecorder?.isVisible = false; return }
-        recorder.addRecordingCallback(object : IRecordingCallback.Stub() {
-            override fun onRecordingStart() {
-                handler.post {
-                    actionRecorder.isSelected = true
+        val actionRecorder = rootBarView.findViewById<ImageButton>(R.id.action_record)
+        actionRecorder.alpha = appSettings.menuOpacity / 100f
+        val recorder =
+            screenUtils.recorder
+                ?: run {
+                    actionRecorder.isVisible = false
+                    return
                 }
-            }
 
-            override fun onRecordingEnd() {
-                handler.post {
-                    actionRecorder.isSelected = false
+        recorder.addRecordingCallback(
+            object : IRecordingCallback.Stub() {
+                override fun onRecordingStart() {
+                    handler.post { actionRecorder.isSelected = true }
+                }
+
+                override fun onRecordingEnd() {
+                    handler.post { actionRecorder.isSelected = false }
                 }
             }
-        })
+        )
+
         actionRecorder.setOnClickListener {
-            if (recorder.isStarting) {
-                return@setOnClickListener
-            }
-
-            if (!recorder.isRecording) {
-                recorder.startRecording()
-            } else {
-                recorder.stopRecording()
-            }
-
+            if (recorder.isStarting) return@setOnClickListener
+            if (!recorder.isRecording) recorder.startRecording() else recorder.stopRecording()
             barExpanded = false
         }
+    }
+
+    fun View.fadeIn(duration: Long = 300L) {
+        if (!isVisible || alpha < 1f) {
+            alpha = 0f
+            isVisible = true
+            animate().alpha(1f).setDuration(duration).start()
+        }
+    }
+
+    fun View.fadeOut(duration: Long = 300L, endAction: () -> Unit = {}) {
+        if (isVisible && alpha > 0f) {
+            animate().alpha(0f).setDuration(duration).withEndAction(endAction).start()
+        } else {
+            endAction()
+        }
+    }
+
+    fun <T : View> safeAttached(initialized: Boolean, view: T): Boolean {
+        if (!initialized) {
+            return false
+        }
+        return view.isAttachedToWindow
     }
 
     companion object {

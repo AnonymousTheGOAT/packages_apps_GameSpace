@@ -36,6 +36,13 @@ android_app {
         "dagger2-compiler",
     ],
 
+    optimize: {
+        enabled: true,
+        shrink: true,
+        optimize: true,
+        proguard_flags_files: ["proguard.flags"],
+    },
+
     required: [
         "ANGLE",
         "privapp_whitelist_io.chaldeaprjkt.gamespace.xml",

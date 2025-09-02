@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 Chaldeaprjkt
- * Copyright (C) 2022-2024 crDroid Android Project
+ * Copyright (C) 2022-2025 crDroid Android Project
  *               2023-2024 the risingOS Android Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,13 +20,16 @@ package io.chaldeaprjkt.gamespace.settings
 import android.os.Bundle
 import android.view.View
 import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
+
+import com.android.settingslib.widget.SettingsBasePreferenceFragment
+
 import dagger.hilt.android.AndroidEntryPoint
+
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.preferences.QuickStartAppPreference
 import io.chaldeaprjkt.gamespace.preferences.QuickStartAppPreferenceDialogFragment
 
-@AndroidEntryPoint(PreferenceFragmentCompat::class)
+@AndroidEntryPoint(SettingsBasePreferenceFragment::class)
 class SettingsFragment : Hilt_SettingsFragment() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

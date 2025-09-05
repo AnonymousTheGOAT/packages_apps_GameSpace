@@ -22,10 +22,14 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Process
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.SwitchPreferenceCompat
 
+import com.android.settingslib.widget.LayoutPreference
 import com.android.settingslib.widget.SettingsBasePreferenceFragment
 
 import dagger.hilt.android.AndroidEntryPoint
@@ -69,10 +73,11 @@ class PerAppSettingsFragment : Hilt_PerAppSettingsFragment(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        findPreference<Preference>("headers")?.apply {
-            layoutResource = R.layout.per_app_header
-            icon = currentGame?.loadIcon(context.packageManager)
-            title = context.packageManager?.let { currentGame?.loadLabel(it) }
+        findPreference<LayoutPreference>("headers")?.apply {
+            findViewById<ImageView>(android.R.id.icon)
+                ?.setImageDrawable(currentGame?.loadIcon(requireContext().packageManager))
+            findViewById<TextView>(android.R.id.title)
+                ?.text = currentGame?.loadLabel(requireContext().packageManager)
             setOnPreferenceClickListener {
                 currentGame?.packageName?.let {
                     val appActivity = context.getAppInfoForPackage(it)

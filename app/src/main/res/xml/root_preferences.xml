@@ -102,8 +102,9 @@
             android:key="gamespace_menu_opacity"
             android:title="@string/gamespace_menu_opacity_title"
             android:defaultValue="100"
+            app:continuousUpdates="true"
             android:max="100"
-            app:min="0"
+            android:min="0"
             app:units="%" />
 
     </PreferenceCategory>

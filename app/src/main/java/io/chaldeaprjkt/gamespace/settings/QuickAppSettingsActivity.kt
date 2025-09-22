@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2021 Chaldeaprjkt
- * Copyright (C) 2022-2025 crDroid Android Project
- *               2023-2024 the risingOS Android Project
+ * Copyright (C) 2022-2024 crDroid Android Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,27 +17,24 @@
 package io.chaldeaprjkt.gamespace.settings
 
 import android.os.Bundle
-import android.view.View
-import androidx.preference.Preference
-
-import com.android.settingslib.widget.SettingsBasePreferenceFragment
-
+import android.util.Log
+import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 
-import io.chaldeaprjkt.gamespace.R
+@AndroidEntryPoint(CollapsingToolbarBaseActivity::class)
+class QuickAppSettingsActivity : Hilt_QuickAppSettingsActivity() {
 
-@AndroidEntryPoint(SettingsBasePreferenceFragment::class)
-class SettingsFragment : Hilt_SettingsFragment() {
-
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.root_preferences, rootKey)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) {
+            supportFragmentManager
+                .beginTransaction()
+                .replace(com.android.settingslib.collapsingtoolbar.R.id.content_frame, QuickAppSettingsFragment())
+                .commit()
+        }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
-
-    override fun onResume() {
-        super.onResume()
+    companion object {
+        const val EXTRA_PACKAGE = "package_name"
     }
 }

@@ -17,4 +17,11 @@
 <resources>
     <!-- Allow user to use ANGLE in Per-app setting -->
     <bool name="config_allow_per_app_angle_usage">true</bool>
+
+    <!-- Apps list to hide from quick start app setting -->
+    <string-array name="quick_start_app_hidden_apps" translatable="false">
+        <item>android</item>
+        <item>com.android.systemui</item>
+        <item>com.android.shell</item>
+    </string-array>
 </resources>

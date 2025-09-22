@@ -93,6 +93,12 @@
             android:label="@string/game_list_title" />
 
         <activity
+            android:name=".settings.QuickAppSettingsActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:label="@string/quick_start_apps_title" />
+
+        <activity
             android:name=".settings.PerAppSettingsActivity"
             android:excludeFromRecents="true"
             android:exported="false" />

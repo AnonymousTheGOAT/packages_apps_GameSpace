@@ -30,6 +30,7 @@ import android.provider.Settings;
 
 import io.chaldeaprjkt.gamespace.R;
 import io.chaldeaprjkt.gamespace.utils.ExtensionsKt;
+import io.chaldeaprjkt.gamespace.utils.GameModeUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,6 +57,7 @@ public class GameSpaceManagerService extends Service {
     private NotificationManager mNotificationManager;
     private ContentResolver mContentResolver;
     private GameListObserver mGameListObserver;
+    private GameModeUtils mGameModeUtils;
 
     public class LocalBinder extends Binder {
         public GameSpaceManagerService getService() {
@@ -82,6 +84,7 @@ public class GameSpaceManagerService extends Service {
         mBinder = new LocalBinder();
         mPackageManager = getPackageManager();
         mPackageChangeReceiver = new PackageChangeReceiver();
+        mGameModeUtils = new GameModeUtils(this);
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_PACKAGE_ADDED);
@@ -197,6 +200,8 @@ public class GameSpaceManagerService extends Service {
                     mContentResolver, GAME_LIST_SETTING, updatedList, UserHandle.USER_CURRENT);
             sendGameAddedNotification(packageName);
         }
+
+        mGameModeUtils.setupBatteryMode(!gameMap.isEmpty());
     }
 
     private void removeFromGameSpace(String packageName) {
@@ -217,6 +222,8 @@ public class GameSpaceManagerService extends Service {
         String updatedList = serializeGameMap(gameMap);
         Settings.System.putStringForUser(
                 mContentResolver, GAME_LIST_SETTING, updatedList, UserHandle.USER_CURRENT);
+
+        mGameModeUtils.setupBatteryMode(!gameMap.isEmpty());
     }
 
     private boolean isValidMode(String modeStr) {

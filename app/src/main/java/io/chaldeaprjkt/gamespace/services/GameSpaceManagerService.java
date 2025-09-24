@@ -46,7 +46,6 @@ public class GameSpaceManagerService extends Service {
     private static final String MODE_PERFORMANCE = "2";
 
     private static final String NOTIFICATION_CHANNEL_ID = "gamespace_notif_channel";
-    private static final String NOTIFICATION_CHANNEL_NAME = "Game Mode Service";
 
     private Handler mBackgroundHandler;
     private HandlerThread mHandlerThread;
@@ -106,7 +105,7 @@ public class GameSpaceManagerService extends Service {
         mChannel =
                 new NotificationChannel(
                         NOTIFICATION_CHANNEL_ID,
-                        NOTIFICATION_CHANNEL_NAME,
+                        getString(R.string.app_name),
                         NotificationManager.IMPORTANCE_LOW);
 
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -297,7 +296,7 @@ public class GameSpaceManagerService extends Service {
         Notification.Builder notification =
                 new Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_launcher_foreground)
-                        .setContentTitle(NOTIFICATION_CHANNEL_NAME)
+                        .setContentTitle(getString(R.string.app_name))
                         .setContentText(getString(R.string.gamespace_new_game_added, finalAppName))
                         .setPriority(NotificationManager.IMPORTANCE_LOW)
                         .setAutoCancel(true);

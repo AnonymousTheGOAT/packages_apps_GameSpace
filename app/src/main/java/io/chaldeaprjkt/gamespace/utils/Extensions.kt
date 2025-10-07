@@ -5,15 +5,13 @@
  */
 package io.chaldeaprjkt.gamespace.utils
 
-import android.app.Activity
 import android.app.ActivityManager
-import android.app.Service
 import android.content.Context
+import android.content.pm.LauncherActivityInfo
+import android.content.pm.LauncherApps
 import android.content.res.Resources.getSystem
 import android.graphics.Point
 import android.os.Process
-import android.content.pm.LauncherActivityInfo
-import android.content.pm.LauncherApps
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
@@ -23,12 +21,13 @@ import io.chaldeaprjkt.gamespace.gamebar.DraggableTouchListener
 fun View.registerDraggableTouchListener(
     initPoint: () -> Point,
     listener: (x: Int, y: Int) -> Unit,
-    onComplete: () -> Unit
+    onComplete: () -> Unit,
 ) = DraggableTouchListener(context, this, initPoint, listener, onComplete)
 
 val Context.statusbarHeight
     get() =
-        resources.getIdentifier("status_bar_height", "dimen", "android")
+        resources
+            .getIdentifier("status_bar_height", "dimen", "android")
             .takeIf { it > 0 }
             ?.let { resources.getDimensionPixelSize(it) } ?: 24.dp
 

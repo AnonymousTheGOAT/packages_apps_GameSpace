@@ -31,65 +31,66 @@ import io.chaldeaprjkt.gamespace.preferences.appselector.adapter.AppsAdapter
 import javax.inject.Inject
 
 @AndroidEntryPoint(Fragment::class)
-class AppSelectorFragment : Hilt_AppSelectorFragment(), SearchView.OnQueryTextListener,
-    MenuItem.OnActionExpandListener {
-    @Inject
-    lateinit var settings: SystemSettings
+class AppSelectorFragment :
+    Hilt_AppSelectorFragment(), SearchView.OnQueryTextListener, MenuItem.OnActionExpandListener {
+    @Inject lateinit var settings: SystemSettings
 
     private var appListView: RecyclerView? = null
     private var appsAdapter: AppsAdapter? = null
     private var appBarLayout: AppBarLayout? = null
 
-    private val menuProvider = object : MenuProvider {
-        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-            menuInflater.inflate(R.menu.app_selector_menu, menu)
-            val searchMenuItem = menu.findItem(R.id.app_search_menu)
-            val searchView = searchMenuItem.actionView as? SearchView
-            searchView?.setOnQueryTextListener(this@AppSelectorFragment)
-            searchView?.queryHint = getString(R.string.app_search_title)
-            searchMenuItem.setOnActionExpandListener(this@AppSelectorFragment)
-        }
+    private val menuProvider =
+        object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.app_selector_menu, menu)
+                val searchMenuItem = menu.findItem(R.id.app_search_menu)
+                val searchView = searchMenuItem.actionView as? SearchView
+                searchView?.setOnQueryTextListener(this@AppSelectorFragment)
+                searchView?.queryHint = getString(R.string.app_search_title)
+                searchMenuItem.setOnActionExpandListener(this@AppSelectorFragment)
+            }
 
-        override fun onMenuItemSelected(menuItem: MenuItem) = false
-    }
+            override fun onMenuItemSelected(menuItem: MenuItem) = false
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        appBarLayout = activity?.findViewById(com.android.settingslib.collapsingtoolbar.R.id.app_bar)
+        appBarLayout =
+            activity?.findViewById(com.android.settingslib.collapsingtoolbar.R.id.app_bar)
         return inflater.inflate(R.layout.app_selector, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity?.addMenuProvider(menuProvider, viewLifecycleOwner, Lifecycle.State.RESUMED)
-        view.findViewById<RecyclerView>(R.id.app_list)?.apply {
-            setupAppListView(this)
-        }
+        view.findViewById<RecyclerView>(R.id.app_list)?.apply { setupAppListView(this) }
     }
 
     private fun setupAppListView(view: RecyclerView) {
         appListView = view
         val flags = PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
-        val apps = view.context.packageManager
-            .getInstalledApplications(flags)
-            .filter {
-                it.packageName != context?.packageName &&
+        val apps =
+            view.context.packageManager
+                .getInstalledApplications(flags)
+                .filter {
+                    it.packageName != context?.packageName &&
                         it.flags and ApplicationInfo.FLAG_SYSTEM == 0 &&
                         !settings.userGames.any { t -> t.packageName == it.packageName }
-            }
-            .sortedBy { it.loadLabel(view.context.packageManager).toString().lowercase() }
+                }
+                .sortedBy { it.loadLabel(view.context.packageManager).toString().lowercase() }
 
         appsAdapter = AppsAdapter(view.context.packageManager, apps)
         view.adapter = appsAdapter
         view.layoutManager = LinearLayoutManager(view.context)
         appsAdapter?.onItemClick {
-            activity?.setResult(Activity.RESULT_OK, Intent().apply {
-                putExtra(AppListPreferences.EXTRA_APP, it.packageName)
-            })
+            activity?.setResult(
+                Activity.RESULT_OK,
+                Intent().apply { putExtra(AppListPreferences.EXTRA_APP, it.packageName) },
+            )
             activity?.finish()
         }
     }

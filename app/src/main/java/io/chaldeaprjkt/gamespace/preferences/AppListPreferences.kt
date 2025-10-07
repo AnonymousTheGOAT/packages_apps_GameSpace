@@ -20,7 +20,6 @@ import io.chaldeaprjkt.gamespace.utils.GameModeUtils.Companion.describeGameMode
 import io.chaldeaprjkt.gamespace.utils.di.ServiceViewEntryPoint
 import io.chaldeaprjkt.gamespace.utils.entryPointOf
 
-
 class AppListPreferences @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
     PreferenceCategory(context, attrs), Preference.OnPreferenceClickListener {
 
@@ -49,12 +48,14 @@ class AppListPreferences @JvmOverloads constructor(context: Context, attrs: Attr
         }
     }
 
-    private fun getAppInfo(packageName: String): ApplicationInfo? = try {
-        val flags = PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
-        context.packageManager.getApplicationInfo(packageName, flags)
-    } catch (e: PackageManager.NameNotFoundException) {
-        null
-    }
+    private fun getAppInfo(packageName: String): ApplicationInfo? =
+        try {
+            val flags =
+                PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
+            context.packageManager.getApplicationInfo(packageName, flags)
+        } catch (e: PackageManager.NameNotFoundException) {
+            null
+        }
 
     fun updateAppList() {
         apps.clear()
@@ -63,7 +64,8 @@ class AppListPreferences @JvmOverloads constructor(context: Context, attrs: Attr
         }
         removeAll()
         addPreference(makeAddPref)
-        apps.filter { getAppInfo(it.packageName) != null }
+        apps
+            .filter { getAppInfo(it.packageName) != null }
             .map {
                 val info = getAppInfo(it.packageName)
                 Preference(context).apply {
@@ -113,14 +115,18 @@ class AppListPreferences @JvmOverloads constructor(context: Context, attrs: Attr
     }
 
     fun usePerAppResult(result: ActivityResult?) {
-        result?.takeIf { it.resultCode == Activity.RESULT_OK }
-            ?.data?.getStringExtra(PerAppSettingsFragment.PREF_UNREGISTER)
+        result
+            ?.takeIf { it.resultCode == Activity.RESULT_OK }
+            ?.data
+            ?.getStringExtra(PerAppSettingsFragment.PREF_UNREGISTER)
             ?.let { unregisterApp(it) }
     }
 
     fun useSelectorResult(result: ActivityResult?) {
-        result?.takeIf { it.resultCode == Activity.RESULT_OK }
-            ?.data?.getStringExtra(EXTRA_APP)
+        result
+            ?.takeIf { it.resultCode == Activity.RESULT_OK }
+            ?.data
+            ?.getStringExtra(EXTRA_APP)
             ?.let { registerApp(it) }
     }
 

@@ -12,12 +12,14 @@ import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.utils.GameModeUtils
 import io.chaldeaprjkt.gamespace.utils.ScreenUtils
 
-
 @EntryPoint
 @InstallIn(SingletonComponent::class)
 interface ServiceViewEntryPoint {
     fun appSettings(): AppSettings
+
     fun systemSettings(): SystemSettings
+
     fun screenUtils(): ScreenUtils
+
     fun gameModeUtils(): GameModeUtils
 }

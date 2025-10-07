@@ -24,8 +24,6 @@ import android.widget.LinearLayout
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.view.marginStart
-import androidx.core.view.updateMargins
-import androidx.core.view.updatePadding
 import androidx.core.view.updatePaddingRelative
 import com.android.systemui.screenrecord.IRecordingCallback
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,14 +40,11 @@ import javax.inject.Inject
 
 @AndroidEntryPoint(Service::class)
 class GameBarService : Hilt_GameBarService() {
-    @Inject
-    lateinit var appSettings: AppSettings
+    @Inject lateinit var appSettings: AppSettings
 
-    @Inject
-    lateinit var screenUtils: ScreenUtils
+    @Inject lateinit var screenUtils: ScreenUtils
 
-    @Inject
-    lateinit var danmakuService: DanmakuService
+    @Inject lateinit var danmakuService: DanmakuService
 
     private val wm by lazy { getSystemService(WINDOW_SERVICE) as WindowManager }
     private val handler by lazy { Handler(Looper.getMainLooper()) }
@@ -61,34 +56,36 @@ class GameBarService : Hilt_GameBarService() {
 
     private val barLayoutParam =
         WindowManager.LayoutParams(
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            width = WindowManager.LayoutParams.WRAP_CONTENT
-            height = WindowManager.LayoutParams.WRAP_CONTENT
-            layoutInDisplayCutoutMode = 
-                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
-            preferMinimalPostProcessing = true
-            gravity = Gravity.TOP
-        }
+                PixelFormat.TRANSLUCENT,
+            )
+            .apply {
+                width = WindowManager.LayoutParams.WRAP_CONTENT
+                height = WindowManager.LayoutParams.WRAP_CONTENT
+                layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                preferMinimalPostProcessing = true
+                gravity = Gravity.TOP
+            }
 
     private val panelLayoutParam =
         WindowManager.LayoutParams(
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            width = WindowManager.LayoutParams.MATCH_PARENT
-            height = WindowManager.LayoutParams.MATCH_PARENT
-            layoutInDisplayCutoutMode = 
-                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
-            gravity = Gravity.CENTER_VERTICAL
-        }
+                PixelFormat.TRANSLUCENT,
+            )
+            .apply {
+                width = WindowManager.LayoutParams.MATCH_PARENT
+                height = WindowManager.LayoutParams.MATCH_PARENT
+                layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                gravity = Gravity.CENTER_VERTICAL
+            }
 
     private lateinit var rootBarView: View
     private lateinit var barView: LinearLayout
@@ -189,10 +186,13 @@ class GameBarService : Hilt_GameBarService() {
         updateScreenMetrics()
         if (!rootBarView.isVisible) {
             handler.removeCallbacks(firstPaint)
-            handler.postDelayed({
-                firstPaint.run()
-                dockCollapsedMenu()
-            }, 100)
+            handler.postDelayed(
+                {
+                    firstPaint.run()
+                    dockCollapsedMenu()
+                },
+                100,
+            )
         } else {
             dockCollapsedMenu()
         }
@@ -318,9 +318,7 @@ class GameBarService : Hilt_GameBarService() {
         panelView = rootPanelView.findViewById(R.id.panel_view)
         panelView.alpha = appSettings.menuOpacity / 100f
 
-        rootPanelView.setOnClickListener {
-            showPanel = false
-        }
+        rootPanelView.setOnClickListener { showPanel = false }
 
         val barWidth = barView.width + barView.marginStart
         if (barLayoutParam.x < 0) {
@@ -352,9 +350,7 @@ class GameBarService : Hilt_GameBarService() {
     }
 
     private fun menuSwitcherButton() {
-        menuSwitcher.setOnClickListener {
-            barExpanded = !barExpanded
-        }
+        menuSwitcher.setOnClickListener { barExpanded = !barExpanded }
         menuSwitcher.registerDraggableTouchListener(
             initPoint = { Point(barLayoutParam.x, barLayoutParam.y) },
             listener = { x, y ->
@@ -374,17 +370,17 @@ class GameBarService : Hilt_GameBarService() {
                 updateBackground()
                 appSettings.x = barLayoutParam.x
                 appSettings.y = barLayoutParam.y
-            }
+            },
         )
     }
 
     private fun panelButton() {
         val actionPanel = rootBarView.findViewById<ImageButton>(R.id.action_panel)
-        actionPanel.setOnClickListener {
-            showPanel = !showPanel
-        }
+        actionPanel.setOnClickListener { showPanel = !showPanel }
         actionPanel.setOnLongClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            startActivity(
+                Intent(this, SettingsActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
             true
         }
     }

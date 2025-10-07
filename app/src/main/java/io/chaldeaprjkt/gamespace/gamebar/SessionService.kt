@@ -24,49 +24,44 @@ import io.chaldeaprjkt.gamespace.data.SystemSettings
 import io.chaldeaprjkt.gamespace.utils.GameModeUtils
 import io.chaldeaprjkt.gamespace.utils.ScreenUtils
 import io.chaldeaprjkt.gamespace.utils.isServiceRunning
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint(Service::class)
 class SessionService : Hilt_SessionService() {
-    @Inject
-    lateinit var appSettings: AppSettings
+    @Inject lateinit var appSettings: AppSettings
 
-    @Inject
-    lateinit var settings: SystemSettings
+    @Inject lateinit var settings: SystemSettings
 
-    @Inject
-    lateinit var session: GameSession
+    @Inject lateinit var session: GameSession
 
-    @Inject
-    lateinit var screenUtils: ScreenUtils
+    @Inject lateinit var screenUtils: ScreenUtils
 
-    @Inject
-    lateinit var gameModeUtils: GameModeUtils
+    @Inject lateinit var gameModeUtils: GameModeUtils
 
-    @Inject
-    lateinit var callListener: CallListener
+    @Inject lateinit var callListener: CallListener
 
     private val scope = CoroutineScope(Job() + Dispatchers.IO)
     private var isRunning = false
 
     private var tarketPkgName = ""
 
-    private val gameBarConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            isBarConnected = true
-            gameBar = (service as GameBarService.GameBarBinder).getService()
-            onGameBarReady()
-        }
+    private val gameBarConnection =
+        object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                isBarConnected = true
+                gameBar = (service as GameBarService.GameBarBinder).getService()
+                onGameBarReady()
+            }
 
-        override fun onServiceDisconnected(name: ComponentName?) {
-            isBarConnected = false
-            stopSelf()
+            override fun onServiceDisconnected(name: ComponentName?) {
+                isBarConnected = false
+                stopSelf()
+            }
         }
-    }
 
     private lateinit var gameBar: GameBarService
     private lateinit var gameManager: GameManager
@@ -146,11 +141,13 @@ class SessionService : Hilt_SessionService() {
 
         try {
             commandIntent?.let { intent ->
-                val app = intent.getStringExtra(EXTRA_PACKAGE_NAME) ?: run {
-                    Log.e(TAG, "App package name missing in intent. Stopping service.")
-                    stopSelf()
-                    return
-                }
+                val app =
+                    intent.getStringExtra(EXTRA_PACKAGE_NAME)
+                        ?: run {
+                            Log.e(TAG, "App package name missing in intent. Stopping service.")
+                            stopSelf()
+                            return
+                        }
                 tarketPkgName = app
                 session.unregister()
                 session.register(app)
@@ -158,10 +155,11 @@ class SessionService : Hilt_SessionService() {
                 gameBar.onGameStart()
                 screenUtils.stayAwake = appSettings.stayAwake
                 screenUtils.lockGesture = appSettings.lockGesture
-            } ?: run {
-                Log.e(TAG, "Command Intent is uninitialized. Stopping service.")
-                stopSelf()
             }
+                ?: run {
+                    Log.e(TAG, "Command Intent is uninitialized. Stopping service.")
+                    stopSelf()
+                }
 
             callListener.init()
         } catch (e: Exception) {
@@ -180,10 +178,8 @@ class SessionService : Hilt_SessionService() {
             return START_NOT_STICKY
         }
 
-        val focusedApp = ActivityTaskManager.getService()
-            ?.focusedRootTaskInfo
-            ?.topActivity
-            ?.packageName
+        val focusedApp =
+            ActivityTaskManager.getService()?.focusedRootTaskInfo?.topActivity?.packageName
 
         if (focusedApp.isNullOrBlank()) {
             stopSelf()
@@ -206,11 +202,13 @@ class SessionService : Hilt_SessionService() {
     }
 
     private fun applyGameModeConfig(app: String) {
-        val preferred = settings.userGames.firstOrNull { it.packageName == app }
-            ?.mode ?: GameModeUtils.defaultPreferredMode
+        val preferred =
+            settings.userGames.firstOrNull { it.packageName == app }?.mode
+                ?: GameModeUtils.defaultPreferredMode
         gameModeUtils.activeGame = settings.userGames.firstOrNull { it.packageName == app }
         scope.launch {
-            gameManager.getAvailableGameModes(app)
+            gameManager
+                .getAvailableGameModes(app)
                 .takeIf { it.contains(preferred) }
                 ?.run { gameManager.setGameMode(app, preferred) }
         }
@@ -222,17 +220,19 @@ class SessionService : Hilt_SessionService() {
         const val STOP = "game_stop"
         const val EXTRA_PACKAGE_NAME = "package_name"
 
-        fun start(context: Context, app: String) = Intent(context, SessionService::class.java)
-            .apply {
-                action = START
-                putExtra(EXTRA_PACKAGE_NAME, app)
-            }
-            .takeIf { !context.isServiceRunning(SessionService::class.java) }
-            ?.run { context.startServiceAsUser(this, UserHandle.CURRENT) }
+        fun start(context: Context, app: String) =
+            Intent(context, SessionService::class.java)
+                .apply {
+                    action = START
+                    putExtra(EXTRA_PACKAGE_NAME, app)
+                }
+                .takeIf { !context.isServiceRunning(SessionService::class.java) }
+                ?.run { context.startServiceAsUser(this, UserHandle.CURRENT) }
 
-        fun stop(context: Context) = Intent(context, SessionService::class.java)
-            .apply { action = STOP }
-            .takeIf { context.isServiceRunning(SessionService::class.java) }
-            ?.run { context.stopServiceAsUser(this, UserHandle.CURRENT) }
+        fun stop(context: Context) =
+            Intent(context, SessionService::class.java)
+                .apply { action = STOP }
+                .takeIf { context.isServiceRunning(SessionService::class.java) }
+                ?.run { context.stopServiceAsUser(this, UserHandle.CURRENT) }
     }
 }

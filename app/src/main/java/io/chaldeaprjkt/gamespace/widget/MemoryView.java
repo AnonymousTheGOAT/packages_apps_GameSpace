@@ -9,10 +9,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.TextView;
-
-import java.lang.Runnable;
 
 import io.chaldeaprjkt.gamespace.R;
 
@@ -38,10 +35,8 @@ public class MemoryView extends TextView {
     public void setVisibility(int visibility) {
         super.setVisibility(visibility);
 
-        if (visibility == VISIBLE)
-            mHandler.post(mWorker);
-        else
-            mHandler.removeCallbacks(mWorker);
+        if (visibility == VISIBLE) mHandler.post(mWorker);
+        else mHandler.removeCallbacks(mWorker);
     }
 
     @Override
@@ -61,8 +56,8 @@ public class MemoryView extends TextView {
         public void run() {
             ActivityManager.MemoryInfo memInfo = new ActivityManager.MemoryInfo();
             mActivityManager.getMemoryInfo(memInfo);
-            int availMemMiB = (int)(memInfo.availMem / 1048576L);
-            int totalMemMiB = (int)(memInfo.totalMem / 1048576L);
+            int availMemMiB = (int) (memInfo.availMem / 1048576L);
+            int totalMemMiB = (int) (memInfo.totalMem / 1048576L);
             setText(getContext().getString(R.string.memory_format, availMemMiB, totalMemMiB));
 
             mHandler.postDelayed(this, 1000);

@@ -15,10 +15,8 @@ import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.utils.di.ServiceViewEntryPoint
 import io.chaldeaprjkt.gamespace.utils.entryPointOf
 
-
-abstract class BaseTile @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null
-) : LinearLayout(context, attrs), View.OnClickListener {
+abstract class BaseTile @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
+    LinearLayout(context, attrs), View.OnClickListener {
     init {
         isClickable = true
         isFocusable = true
@@ -38,13 +36,11 @@ abstract class BaseTile @JvmOverloads constructor(
         get() = findViewById(R.id.tile_icon)
 
     private fun prepareLayout() {
-        LayoutInflater.from(context)
-            .inflate(R.layout.panel_tile, this, true)
+        LayoutInflater.from(context).inflate(R.layout.panel_tile, this, true)
         setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
         isSelected = !isSelected
     }
-
 }

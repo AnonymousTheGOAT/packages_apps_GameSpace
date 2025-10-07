@@ -9,10 +9,8 @@ import android.util.AttributeSet
 import android.view.View
 import io.chaldeaprjkt.gamespace.R
 
-class FPSInfoTile @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null
-) : BaseTile(context, attrs) {
-
+class FPSInfoTile @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
+    BaseTile(context, attrs) {
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()

@@ -27,8 +27,7 @@ class AppsAdapter(private val pm: PackageManager, private val apps: List<Applica
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppsItemViewHolder {
         return AppsItemViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.app_selector_item, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.app_selector_item, parent, false)
         )
     }
 
@@ -46,7 +45,8 @@ class AppsAdapter(private val pm: PackageManager, private val apps: List<Applica
 
     fun filterWith(text: String?) {
         val rText = ".*${text}.*".toRegex(RegexOption.IGNORE_CASE)
-        apps.filter { it.loadLabel(pm).contains(rText) }
+        apps
+            .filter { it.loadLabel(pm).contains(rText) }
             .takeIf { it.isNotEmpty() }
             ?.run(::submitList) ?: submitList(apps)
     }

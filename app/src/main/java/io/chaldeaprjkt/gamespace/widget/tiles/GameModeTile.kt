@@ -13,19 +13,19 @@ import io.chaldeaprjkt.gamespace.utils.GameModeUtils.Companion.describeGameMode
 import io.chaldeaprjkt.gamespace.utils.di.ServiceViewEntryPoint
 import io.chaldeaprjkt.gamespace.utils.entryPointOf
 
-class GameModeTile @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null
-) : BaseTile(context, attrs) {
+class GameModeTile @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
+    BaseTile(context, attrs) {
 
     private val gameModeUtils by lazy {
         context.entryPointOf<ServiceViewEntryPoint>().gameModeUtils()
     }
 
-    private val modes = listOf(
-        GameManager.GAME_MODE_STANDARD,
-        GameManager.GAME_MODE_PERFORMANCE,
-        GameManager.GAME_MODE_BATTERY,
-    )
+    private val modes =
+        listOf(
+            GameManager.GAME_MODE_STANDARD,
+            GameManager.GAME_MODE_PERFORMANCE,
+            GameManager.GAME_MODE_BATTERY,
+        )
 
     private var activeMode = GameManager.GAME_MODE_STANDARD
         set(value) {

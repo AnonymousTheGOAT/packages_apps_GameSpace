@@ -13,16 +13,12 @@ import android.os.Process
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.SwitchPreferenceCompat
-
 import com.android.settingslib.widget.LayoutPreference
 import com.android.settingslib.widget.SettingsBasePreferenceFragment
-
 import dagger.hilt.android.AndroidEntryPoint
-
 import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.data.GameConfig
 import io.chaldeaprjkt.gamespace.data.SystemSettings
@@ -32,14 +28,12 @@ import io.chaldeaprjkt.gamespace.utils.getAppInfoForPackage
 import javax.inject.Inject
 
 @AndroidEntryPoint(SettingsBasePreferenceFragment::class)
-class PerAppSettingsFragment : Hilt_PerAppSettingsFragment(),
-    Preference.OnPreferenceChangeListener {
+class PerAppSettingsFragment :
+    Hilt_PerAppSettingsFragment(), Preference.OnPreferenceChangeListener {
 
-    @Inject
-    lateinit var settings: SystemSettings
+    @Inject lateinit var settings: SystemSettings
 
-    @Inject
-    lateinit var gameModeUtils: GameModeUtils
+    @Inject lateinit var gameModeUtils: GameModeUtils
 
     private val currentGame by lazy {
         activity?.intent?.getStringExtra(PerAppSettingsActivity.EXTRA_PACKAGE)?.let {
@@ -65,8 +59,8 @@ class PerAppSettingsFragment : Hilt_PerAppSettingsFragment(),
         findPreference<LayoutPreference>("headers")?.apply {
             findViewById<ImageView>(android.R.id.icon)
                 ?.setImageDrawable(currentGame?.loadIcon(requireContext().packageManager))
-            findViewById<TextView>(android.R.id.title)
-                ?.text = currentGame?.loadLabel(requireContext().packageManager)
+            findViewById<TextView>(android.R.id.title)?.text =
+                currentGame?.loadLabel(requireContext().packageManager)
             setOnPreferenceClickListener {
                 currentGame?.packageName?.let {
                     val appActivity = context.getAppInfoForPackage(it)
@@ -77,7 +71,7 @@ class PerAppSettingsFragment : Hilt_PerAppSettingsFragment(),
                                 addFlags(
                                     Intent.FLAG_ACTIVITY_NEW_TASK or
                                         Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED or
-                                            Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT
+                                        Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT
                                 )
                             }
                         context.startActivityAsUser(intent, Process.myUserHandle())
@@ -103,17 +97,18 @@ class PerAppSettingsFragment : Hilt_PerAppSettingsFragment(),
             }
             isChecked = gameModeUtils.isAngleUsed(currentGame?.packageName)
             onPreferenceChangeListener = this@PerAppSettingsFragment
-
         }
         findPreference<Preference>(PREF_UNREGISTER)?.apply {
-            summary = context.getString(
-                R.string.per_app_unregister,
-                currentGame?.loadLabel(context.packageManager)
-            )
+            summary =
+                context.getString(
+                    R.string.per_app_unregister,
+                    currentGame?.loadLabel(context.packageManager),
+                )
             setOnPreferenceClickListener {
-                activity?.setResult(Activity.RESULT_OK, Intent().apply {
-                    putExtra(PREF_UNREGISTER, currentGame?.packageName)
-                })
+                activity?.setResult(
+                    Activity.RESULT_OK,
+                    Intent().apply { putExtra(PREF_UNREGISTER, currentGame?.packageName) },
+                )
                 activity?.finish()
                 true
             }
@@ -129,9 +124,8 @@ class PerAppSettingsFragment : Hilt_PerAppSettingsFragment(),
                 return true
             }
             PREF_USE_ANGLE -> {
-                val newModes = GameConfig.ModeBuilder.apply {
-                    useAngle = newValue as Boolean
-                }.build()
+                val newModes =
+                    GameConfig.ModeBuilder.apply { useAngle = newValue as Boolean }.build()
                 gameModeUtils.setIntervention(gameInfo.packageName, newModes)
                 return true
             }

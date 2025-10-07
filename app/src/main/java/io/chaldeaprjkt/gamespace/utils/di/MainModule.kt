@@ -18,12 +18,10 @@ import io.chaldeaprjkt.gamespace.utils.GameModeUtils
 import io.chaldeaprjkt.gamespace.utils.ScreenUtils
 import javax.inject.Singleton
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 object MainModule {
-    @Provides
-    fun provideBaseGson() = Gson()
+    @Provides fun provideBaseGson() = Gson()
 
     @Provides
     @Singleton
@@ -48,6 +46,6 @@ object MainModule {
         @ApplicationContext context: Context,
         appSettings: AppSettings,
         systemSettings: SystemSettings,
-        gson: Gson
+        gson: Gson,
     ) = GameSession(context, appSettings, systemSettings, gson)
 }

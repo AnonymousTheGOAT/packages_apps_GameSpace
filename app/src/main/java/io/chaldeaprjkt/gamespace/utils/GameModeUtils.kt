@@ -36,7 +36,10 @@ class GameModeUtils @Inject constructor(private val context: Context) {
 
     fun setIntervention(packageName: String, modeData: List<GameConfig>? = null) {
         DeviceConfig.setProperty(
-            DeviceConfig.NAMESPACE_GAME_OVERLAY, packageName, modeData?.asConfig(), false
+            DeviceConfig.NAMESPACE_GAME_OVERLAY,
+            packageName,
+            modeData?.asConfig(),
+            false,
         )
     }
 
@@ -48,18 +51,20 @@ class GameModeUtils @Inject constructor(private val context: Context) {
 
     fun setGameModeFor(packageName: String, systemSettings: SystemSettings, mode: Int): UserGame {
         val data = UserGame(packageName, mode)
-        systemSettings.userGames = systemSettings.userGames
-            .filter { x -> x.packageName != packageName }
-            .toMutableList()
-            .apply { add(data) }
+        systemSettings.userGames =
+            systemSettings.userGames
+                .filter { x -> x.packageName != packageName }
+                .toMutableList()
+                .apply { add(data) }
 
         return data
     }
 
     fun setupBatteryMode(enable: Boolean) {
-        val svc = IDeviceIdleController.Stub.asInterface(
-            ServiceManager.getService(Context.DEVICE_IDLE_CONTROLLER)
-        )
+        val svc =
+            IDeviceIdleController.Stub.asInterface(
+                ServiceManager.getService(Context.DEVICE_IDLE_CONTROLLER)
+            )
         try {
             val isListed = svc?.isPowerSaveWhitelistApp(context.packageName) ?: false
             if (enable && !isListed) {
@@ -72,7 +77,6 @@ class GameModeUtils @Inject constructor(private val context: Context) {
         }
     }
 
-
     fun findAnglePackage(): ActivityInfo? {
         val intent = Intent(ACTION_ANGLE_FOR_ANDROID)
         val flags = PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_SYSTEM_ONLY.toLong())
@@ -80,10 +84,11 @@ class GameModeUtils @Inject constructor(private val context: Context) {
         return info.firstOrNull()?.activityInfo
     }
 
-    fun isAngleUsed(packageName: String?) = packageName?.let {
-        DeviceConfig.getString(DeviceConfig.NAMESPACE_GAME_OVERLAY, it, null)
-            ?.contains("useAngle=true")
-    } ?: false
+    fun isAngleUsed(packageName: String?) =
+        packageName?.let {
+            DeviceConfig.getString(DeviceConfig.NAMESPACE_GAME_OVERLAY, it, null)
+                ?.contains("useAngle=true")
+        } ?: false
 
     companion object {
         const val defaultPreferredMode = GameManager.GAME_MODE_STANDARD

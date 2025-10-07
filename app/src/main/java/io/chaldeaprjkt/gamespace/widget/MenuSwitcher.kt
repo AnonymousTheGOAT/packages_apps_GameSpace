@@ -16,16 +16,15 @@ import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.utils.di.ServiceViewEntryPoint
 import io.chaldeaprjkt.gamespace.utils.dp
 import io.chaldeaprjkt.gamespace.utils.entryPointOf
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.math.RoundingMode
-import java.text.DecimalFormat
 
-class MenuSwitcher @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null
-) : LinearLayout(context, attrs) {
+class MenuSwitcher @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
+    LinearLayout(context, attrs) {
 
     init {
         LayoutInflater.from(context).inflate(R.layout.bar_menu_switcher, this, true)
@@ -35,13 +34,14 @@ class MenuSwitcher @JvmOverloads constructor(
     private val scope = CoroutineScope(Job() + Dispatchers.Main)
     private val taskManager by lazy { ActivityTaskManager.getService() }
 
-    private val taskFpsCallback = object : TaskFpsCallback() {
-        override fun onFpsReported(fps: Float) {
-            if (isAttachedToWindow) {
-                onFrameUpdated(fps)
+    private val taskFpsCallback =
+        object : TaskFpsCallback() {
+            override fun onFpsReported(fps: Float) {
+                if (isAttachedToWindow) {
+                    onFrameUpdated(fps)
+                }
             }
         }
-    }
 
     private val wm: WindowManager
         get() = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -71,12 +71,13 @@ class MenuSwitcher @JvmOverloads constructor(
         updateFrameRateBinding()
     }
 
-    private fun onFrameUpdated(newValue: Float) = scope.launch {
-        DecimalFormat("#").apply {
-            roundingMode = RoundingMode.HALF_EVEN
-            content?.text = this.format(newValue)
+    private fun onFrameUpdated(newValue: Float) =
+        scope.launch {
+            DecimalFormat("#").apply {
+                roundingMode = RoundingMode.HALF_EVEN
+                content?.text = this.format(newValue)
+            }
         }
-    }
 
     private fun updateFrameRateBinding() {
         if (showFps) {
@@ -90,7 +91,8 @@ class MenuSwitcher @JvmOverloads constructor(
 
     private fun setMenuIcon(icon: Int?) {
         when (icon) {
-            R.drawable.ic_close, R.drawable.ic_drag -> layoutParams.width = 36.dp
+            R.drawable.ic_close,
+            R.drawable.ic_drag -> layoutParams.width = 36.dp
             else -> layoutParams.width = LayoutParams.WRAP_CONTENT
         }
         val ic = icon?.takeIf { !showFps }?.let { resources.getDrawable(it, context.theme) }

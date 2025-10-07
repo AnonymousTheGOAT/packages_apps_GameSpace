@@ -11,9 +11,8 @@ import io.chaldeaprjkt.gamespace.R
 import io.chaldeaprjkt.gamespace.utils.di.ServiceViewEntryPoint
 import io.chaldeaprjkt.gamespace.utils.entryPointOf
 
-class LockGestureTile @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null
-) : BaseTile(context, attrs) {
+class LockGestureTile @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
+    BaseTile(context, attrs) {
 
     private val screenUtils by lazy { context.entryPointOf<ServiceViewEntryPoint>().screenUtils() }
 

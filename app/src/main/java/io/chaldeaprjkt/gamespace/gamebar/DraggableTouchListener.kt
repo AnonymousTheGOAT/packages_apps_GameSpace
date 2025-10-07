@@ -9,9 +9,7 @@ import android.graphics.Point
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
-
 import java.util.*
-
 import kotlin.concurrent.timerTask
 import kotlin.math.hypot
 
@@ -20,7 +18,7 @@ class DraggableTouchListener(
     private val view: View,
     private val initialPosition: () -> Point,
     private val positionListener: (x: Int, y: Int) -> Unit,
-    private val onDragComplete: () -> Unit
+    private val onDragComplete: () -> Unit,
 ) : View.OnTouchListener {
 
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
@@ -40,15 +38,16 @@ class DraggableTouchListener(
     private fun scheduleLongClickTimer() {
         if (timer == null) {
             timer = Timer()
-            timer?.schedule(timerTask {
-                if (!moving && !longClickPerformed) {
-                    view.post {
-                        view.performLongClick()
+            timer?.schedule(
+                timerTask {
+                    if (!moving && !longClickPerformed) {
+                        view.post { view.performLongClick() }
+                        longClickPerformed = true
                     }
-                    longClickPerformed = true
-                }
-                cancelLongClickTimer()
-            }, longClickInterval.toLong())
+                    cancelLongClickTimer()
+                },
+                longClickInterval.toLong(),
+            )
         }
     }
 

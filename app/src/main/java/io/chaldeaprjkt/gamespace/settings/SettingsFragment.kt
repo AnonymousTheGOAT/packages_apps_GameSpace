@@ -8,12 +8,8 @@ package io.chaldeaprjkt.gamespace.settings
 
 import android.os.Bundle
 import android.view.View
-import androidx.preference.Preference
-
 import com.android.settingslib.widget.SettingsBasePreferenceFragment
-
 import dagger.hilt.android.AndroidEntryPoint
-
 import io.chaldeaprjkt.gamespace.R
 
 @AndroidEntryPoint(SettingsBasePreferenceFragment::class)

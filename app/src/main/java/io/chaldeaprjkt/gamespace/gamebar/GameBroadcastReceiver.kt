@@ -40,18 +40,24 @@ class GameBroadcastReceiver : BroadcastReceiver() {
     }
 
     private fun Context.resendBroadcast(prevIntent: Intent) {
-        val intent = (prevIntent.clone() as Intent).apply {
-            setPackage(null)
-            component = null
-        }
+        val intent =
+            (prevIntent.clone() as Intent).apply {
+                setPackage(null)
+                component = null
+            }
         val flags = PackageManager.ResolveInfoFlags.of(0)
-        packageManager.queryBroadcastReceivers(intent, flags)
+        packageManager
+            .queryBroadcastReceivers(intent, flags)
             .mapNotNull { it.activityInfo?.packageName }
             .filter { it != packageName }
             .forEach {
                 (intent.clone() as Intent).apply {
                     setPackage(it)
-                    sendBroadcastAsUser(this, UserHandle.CURRENT, android.Manifest.permission.MANAGE_GAME_MODE)
+                    sendBroadcastAsUser(
+                        this,
+                        UserHandle.CURRENT,
+                        android.Manifest.permission.MANAGE_GAME_MODE,
+                    )
                 }
             }
     }

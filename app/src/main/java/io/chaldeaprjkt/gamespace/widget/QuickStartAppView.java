@@ -4,7 +4,6 @@
  */
 package io.chaldeaprjkt.gamespace.widget;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.WindowConfiguration;
@@ -17,10 +16,7 @@ import android.database.ContentObserver;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.RemoteException;
-import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.view.Display;
@@ -40,15 +36,11 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import io.chaldeaprjkt.gamespace.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-
-import io.chaldeaprjkt.gamespace.R;
 
 public class QuickStartAppView extends LinearLayout {
     private RecyclerView recyclerView;
@@ -82,15 +74,17 @@ public class QuickStartAppView extends LinearLayout {
     private void init(Context context) {
         mContext = context;
         mObserver = new SettingsContentObserver(new Handler());
-        mContext.getContentResolver().registerContentObserver(
-                Settings.System.getUriFor("quick_start_apps"), true, mObserver);
+        mContext.getContentResolver()
+                .registerContentObserver(
+                        Settings.System.getUriFor("quick_start_apps"), true, mObserver);
         mPackageManager = mContext.getPackageManager();
         mActivityOptions = ActivityOptions.makeBasic();
         mActivityOptions.setLaunchWindowingMode(WindowConfiguration.WINDOWING_MODE_FREEFORM);
     }
 
     private void updateAppIcons() {
-        String appPackageNames = Settings.System.getString(mContext.getContentResolver(), "quick_start_apps");
+        String appPackageNames =
+                Settings.System.getString(mContext.getContentResolver(), "quick_start_apps");
         if (appPackageNames != null && !appPackageNames.isEmpty()) {
             String[] packages = appPackageNames.split(",");
             if (packages.length > 0) {
@@ -105,21 +99,26 @@ public class QuickStartAppView extends LinearLayout {
     }
 
     private void setupAppIcons(String[] packages) {
-        recyclerView.setHasFixedSize(true);//设置固定大小
-        recyclerView.setItemAnimator(new DefaultItemAnimator());//设置默认动画
+        recyclerView.setHasFixedSize(true); // 设置固定大小
+        recyclerView.setItemAnimator(new DefaultItemAnimator()); // 设置默认动画
         LinearLayoutManager mLayoutManage = new LinearLayoutManager(mContext);
-        mLayoutManage.setOrientation(RecyclerView.HORIZONTAL);//设置滚动方向，横向滚动
+        mLayoutManage.setOrientation(RecyclerView.HORIZONTAL); // 设置滚动方向，横向滚动
         recyclerView.setLayoutManager(mLayoutManage);
         recyclerView.setAdapter(new MyRecyclerViewAdapter(recyclerView, Arrays.asList(packages)));
 
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setClipToPadding(false);
-        ViewCompat.setOnApplyWindowInsetsListener(recyclerView, (v, insets) -> {
-            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(),
-                    Math.max(v.getPaddingBottom(), bars.bottom));
-            return insets;
-        });
+        ViewCompat.setOnApplyWindowInsetsListener(
+                recyclerView,
+                (v, insets) -> {
+                    Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                    v.setPadding(
+                            v.getPaddingLeft(),
+                            v.getPaddingTop(),
+                            v.getPaddingRight(),
+                            Math.max(v.getPaddingBottom(), bars.bottom));
+                    return insets;
+                });
     }
 
     private void setupAppIcon(ImageView imageView, @Nullable String packageName) {
@@ -128,8 +127,10 @@ public class QuickStartAppView extends LinearLayout {
             imageView.setVisibility(GONE);
         } else {
             try {
-                ApplicationInfo appInfo = mContext.getPackageManager().getApplicationInfo(packageName, 0);
-                imageView.setImageDrawable(mContext.getPackageManager().getApplicationIcon(appInfo));
+                ApplicationInfo appInfo =
+                        mContext.getPackageManager().getApplicationInfo(packageName, 0);
+                imageView.setImageDrawable(
+                        mContext.getPackageManager().getApplicationIcon(appInfo));
                 imageView.setOnClickListener(v -> launchAppInFreeformMode(packageName));
                 imageView.setVisibility(VISIBLE);
             } catch (PackageManager.NameNotFoundException e) {
@@ -140,11 +141,13 @@ public class QuickStartAppView extends LinearLayout {
 
     private void launchAppInFreeformMode(String packageName) {
         ActivityManager am = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
-        // force stop the app before launching in freeform to avoid ui glitches - follows legacy freeform behaviour
+        // force stop the app before launching in freeform to avoid ui glitches - follows legacy
+        // freeform behaviour
         if (am != null) {
             am.forceStopPackage(packageName);
         }
-        WindowManager windowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        WindowManager windowManager =
+                (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         Display display = windowManager.getDefaultDisplay();
         Point screenSize = new Point();
         display.getSize(screenSize);
@@ -154,26 +157,33 @@ public class QuickStartAppView extends LinearLayout {
         int centerY = screenSize.y / 2;
         int width = Math.min(screenSize.x, screenSize.y) * 1 / 2;
         int height = Math.max(screenSize.x, screenSize.y) * 1 / 2;
-        Rect launchBounds = new Rect(centerX - width / 2, centerY - height / 2, centerX + width / 2, centerY + height / 2);
-        
+        Rect launchBounds =
+                new Rect(
+                        centerX - width / 2,
+                        centerY - height / 2,
+                        centerX + width / 2,
+                        centerY + height / 2);
+
         mActivityOptions.setLaunchBounds(launchBounds);
         mActivityOptions.setTaskAlwaysOnTop(true);
         mActivityOptions.setSplashScreenStyle(SplashScreen.SPLASH_SCREEN_STYLE_ICON);
         mActivityOptions.setPendingIntentBackgroundActivityStartMode(
                 ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOW_ALWAYS);
-        
+
         try {
             Intent startAppIntent = mPackageManager.getLaunchIntentForPackage(packageName);
             if (startAppIntent != null) {
                 mContext.startActivity(startAppIntent, mActivityOptions.toBundle());
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
     private class SettingsContentObserver extends ContentObserver {
         SettingsContentObserver(Handler handler) {
             super(handler);
         }
+
         @Override
         public void onChange(boolean selfChange, Uri uri) {
             super.onChange(selfChange, uri);
@@ -187,7 +197,8 @@ public class QuickStartAppView extends LinearLayout {
         mContext.getContentResolver().unregisterContentObserver(mObserver);
     }
 
-    public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.RecyclerHolder> {
+    public class MyRecyclerViewAdapter
+            extends RecyclerView.Adapter<MyRecyclerViewAdapter.RecyclerHolder> {
         private Context mContext;
         private List<String> dataList = new ArrayList<>();
 
@@ -210,7 +221,9 @@ public class QuickStartAppView extends LinearLayout {
 
         @Override
         public RecyclerHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(mContext).inflate(R.layout.quick_start_app_item, parent, false);
+            View view =
+                    LayoutInflater.from(mContext)
+                            .inflate(R.layout.quick_start_app_item, parent, false);
             return new RecyclerHolder(view);
         }
 

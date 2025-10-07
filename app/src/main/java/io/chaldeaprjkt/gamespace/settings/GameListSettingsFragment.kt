@@ -23,16 +23,12 @@ class GameListSettingsFragment : Hilt_GameListSettingsFragment() {
     private var apps: AppListPreferences? = null
 
     private val selectorResult =
-        registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) {
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             apps?.useSelectorResult(it)
         }
 
     private val perAppResult =
-        registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) {
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             apps?.usePerAppResult(it)
         }
 
@@ -44,16 +40,17 @@ class GameListSettingsFragment : Hilt_GameListSettingsFragment() {
         super.onViewCreated(view, savedInstanceState)
         apps = findPreference(Settings.System.GAMESPACE_GAME_LIST)
         apps?.onRegisteredAppClick {
-            perAppResult.launch(Intent(context, PerAppSettingsActivity::class.java).apply {
-                putExtra(PerAppSettingsActivity.EXTRA_PACKAGE, it)
-            })
+            perAppResult.launch(
+                Intent(context, PerAppSettingsActivity::class.java).apply {
+                    putExtra(PerAppSettingsActivity.EXTRA_PACKAGE, it)
+                }
+            )
         }
 
-        findPreference<Preference>(AppListPreferences.KEY_ADD_GAME)
-            ?.setOnPreferenceClickListener {
-                selectorResult.launch(Intent(context, AppSelectorActivity::class.java))
-                return@setOnPreferenceClickListener true
-            }
+        findPreference<Preference>(AppListPreferences.KEY_ADD_GAME)?.setOnPreferenceClickListener {
+            selectorResult.launch(Intent(context, AppSelectorActivity::class.java))
+            return@setOnPreferenceClickListener true
+        }
     }
 
     override fun onResume() {

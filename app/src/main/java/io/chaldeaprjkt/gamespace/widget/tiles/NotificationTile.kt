@@ -11,21 +11,21 @@ import android.util.AttributeSet
 import android.view.View
 import io.chaldeaprjkt.gamespace.R
 
-class NotificationTile @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null
-) : BaseTile(context, attrs) {
+class NotificationTile @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
+    BaseTile(context, attrs) {
 
     private var activeMode = true
         set(value) {
             field = value
             appSettings.danmakuNotification = value
-            summary?.text = if (value) {
-                systemSettings.headsup = false
-                context.getString(R.string.notification_danmaku)
-            } else {
-                systemSettings.headsup = true
-                context.getString(R.string.state_default)
-            }
+            summary?.text =
+                if (value) {
+                    systemSettings.headsup = false
+                    context.getString(R.string.notification_danmaku)
+                } else {
+                    systemSettings.headsup = true
+                    context.getString(R.string.state_default)
+                }
             isSelected = value
         }
 

@@ -6,7 +6,6 @@
 package io.chaldeaprjkt.gamespace.settings
 
 import android.os.Bundle
-import android.util.Log
 import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -18,7 +17,10 @@ class QuickAppSettingsActivity : Hilt_QuickAppSettingsActivity() {
         if (savedInstanceState == null) {
             supportFragmentManager
                 .beginTransaction()
-                .replace(com.android.settingslib.collapsingtoolbar.R.id.content_frame, QuickAppSettingsFragment())
+                .replace(
+                    com.android.settingslib.collapsingtoolbar.R.id.content_frame,
+                    QuickAppSettingsFragment(),
+                )
                 .commit()
         }
     }

@@ -66,13 +66,15 @@ class DanmakuServiceListener : NotificationListenerService() {
 
     private fun extractDanmakuText(sbn: StatusBarNotification): String {
         val extras = sbn.notification.extras
-        val title = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
-            ?: extras.getCharSequence(Notification.EXTRA_TITLE_BIG)?.toString()
+        val title =
+            extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
+                ?: extras.getCharSequence(Notification.EXTRA_TITLE_BIG)?.toString()
         val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
 
-        val appLabel = appLabelsCache.getOrPut(sbn.packageName) {
-            danmakuServiceInterface?.getApplabel(sbn.packageName)
-        } ?: ""
+        val appLabel =
+            appLabelsCache.getOrPut(sbn.packageName) {
+                danmakuServiceInterface?.getApplabel(sbn.packageName)
+            } ?: ""
 
         // Skip annoying notification headers
         if (!title.isNullOrBlank() && !appLabel.isNullOrBlank()) {

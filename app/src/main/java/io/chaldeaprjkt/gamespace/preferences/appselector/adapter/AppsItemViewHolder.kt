@@ -19,8 +19,6 @@ class AppsItemViewHolder(private val v: View) : RecyclerView.ViewHolder(v) {
         v.findViewById<TextView>(R.id.app_name)?.text = app.loadLabel(pm)
         v.findViewById<TextView>(R.id.app_summary)?.text = app.packageName
         v.findViewById<ImageView>(R.id.app_icon)?.setImageDrawable(app.loadIcon(pm))
-        v.findViewById<ViewGroup>(R.id.app_item)?.setOnClickListener {
-            onClick.invoke(app)
-        }
+        v.findViewById<ViewGroup>(R.id.app_item)?.setOnClickListener { onClick.invoke(app) }
     }
 }

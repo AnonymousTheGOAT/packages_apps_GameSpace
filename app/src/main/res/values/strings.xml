@@ -25,6 +25,9 @@
     <!-- [CHAR LIMIT=NONE] Menu for manage apps to control whether system processes are hidden -->
     <string name="menu_hide_system">Hide system</string>
 
+    <!-- Main switch -->
+    <string name="gamespace_enable_title">Use game mode</string>
+
     <!-- Quick start apps -->
     <string name="quick_start_apps_title">Quick Start Apps</string>
     <string name="quick_start_apps_summary">Select apps to launch quickly</string>

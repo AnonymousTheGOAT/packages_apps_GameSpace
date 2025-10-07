@@ -19,6 +19,10 @@ class AppSettings @Inject constructor(private val context: Context) {
     private val db by lazy { PreferenceManager.getDefaultSharedPreferences(context) }
     private val wm by lazy { context.getSystemService(Service.WINDOW_SERVICE) as WindowManager }
 
+    var enabled
+        get() = db.getBoolean(KEY_ENABLE, true)
+        set(it) = db.edit().putBoolean(KEY_ENABLE, it).apply()
+
     var x
         get() = db.getInt("offset_x", -wm.maximumWindowMetrics.bounds.width() / 2)
         set(point) = db.edit().putInt("offset_x", point).apply()
@@ -64,6 +68,7 @@ class AppSettings @Inject constructor(private val context: Context) {
         set(value) = db.edit().putBoolean(KEY_LOCK_GESTURE, value).apply()
 
     companion object {
+        const val KEY_ENABLE = "gamespace_enable"
         const val KEY_AUTO_BRIGHTNESS_DISABLE = "gamespace_auto_brightness_disabled"
         const val KEY_3SCREENSHOT_DISABLE = "gamespace_tfgesture_disabled"
         const val KEY_STAY_AWAKE = "gamespace_stay_awake"

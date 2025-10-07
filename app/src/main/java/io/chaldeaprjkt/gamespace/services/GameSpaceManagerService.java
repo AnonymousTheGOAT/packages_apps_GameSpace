@@ -17,6 +17,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.PackageManager;
@@ -27,6 +28,8 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.UserHandle;
 import android.provider.Settings;
+
+import androidx.preference.PreferenceManager;
 
 import io.chaldeaprjkt.gamespace.R;
 import io.chaldeaprjkt.gamespace.utils.ExtensionsKt;
@@ -47,6 +50,8 @@ public class GameSpaceManagerService extends Service {
 
     private static final String NOTIFICATION_CHANNEL_ID = "gamespace_notif_channel";
 
+    private static final String KEY_ENABLE = "gamespace_enable";
+
     private Handler mBackgroundHandler;
     private HandlerThread mHandlerThread;
     private PackageManager mPackageManager;
@@ -57,6 +62,7 @@ public class GameSpaceManagerService extends Service {
     private ContentResolver mContentResolver;
     private GameListObserver mGameListObserver;
     private GameModeUtils mGameModeUtils;
+    private SharedPreferences mPrefs;
 
     public class LocalBinder extends Binder {
         public GameSpaceManagerService getService() {
@@ -76,6 +82,8 @@ public class GameSpaceManagerService extends Service {
 
     @Override
     public void onCreate() {
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
         mHandlerThread = new HandlerThread(THREAD_NAME);
         mHandlerThread.start();
         mBackgroundHandler = new Handler(mHandlerThread.getLooper());
@@ -138,6 +146,10 @@ public class GameSpaceManagerService extends Service {
     private class PackageChangeReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if (!mPrefs.getBoolean(KEY_ENABLE, true)) {
+                return;
+            }
+
             String packageName = intent.getData().getSchemeSpecificPart();
             if (packageName == null) return;
 

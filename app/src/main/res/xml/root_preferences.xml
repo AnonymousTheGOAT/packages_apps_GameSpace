@@ -13,13 +13,19 @@
         android:key="game_settings_illustration_video"
         app:lottie_rawRes="@raw/game_settings_illustration" />
 
+    <io.chaldeaprjkt.gamespace.preferences.GameSpaceMainSwitchPreference
+        android:key="gamespace_enable"
+        android:title="@string/gamespace_enable_title"
+        android:defaultValue="true" />
+
     <PreferenceCategory
         android:key="game_list_preferences"
         android:title="@string/game_list_preferences_title">
 
         <Preference
             android:title="@string/game_list_title"
-            android:summary="@string/game_list_summary">
+            android:summary="@string/game_list_summary"
+            android:dependency="gamespace_enable">
             <intent
                 android:action="android.intent.action.MAIN"
                 android:targetClass="io.chaldeaprjkt.gamespace.settings.GameListSettingsActivity"
@@ -28,7 +34,8 @@
 
         <Preference
             android:title="@string/quick_start_apps_title"
-            android:summary="@string/quick_start_apps_summary">
+            android:summary="@string/quick_start_apps_summary"
+            android:dependency="gamespace_enable">
             <intent
                 android:action="android.intent.action.MAIN"
                 android:targetClass="io.chaldeaprjkt.gamespace.settings.QuickAppSettingsActivity"
@@ -45,7 +52,8 @@
             android:defaultValue="false"
             android:key="gamespace_danmaku_notification_mode"
             android:summary="@string/danmaku_notification_mode_summary"
-            android:title="@string/danmaku_notification_mode_title" />
+            android:title="@string/danmaku_notification_mode_title"
+            android:dependency="gamespace_enable" />
 
         <ListPreference
             android:defaultValue="0"
@@ -53,7 +61,8 @@
             android:entryValues="@array/in_game_calls_values"
             android:key="gamespace_calls_mode"
             android:summary="%s"
-            android:title="@string/in_game_calls_title" />
+            android:title="@string/in_game_calls_title"
+            android:dependency="gamespace_enable" />
 
         <ListPreference
             android:defaultValue="3"
@@ -61,36 +70,43 @@
             android:entryValues="@array/ringer_mode_values"
             android:key="gamespace_ringer_mode"
             android:summary="%s"
-            android:title="@string/ringer_mode_title" />
+            android:title="@string/ringer_mode_title"
+            android:dependency="gamespace_enable" />
 
         <lineageos.preference.SystemSettingSwitchPreference
+            android:defaultValue="false"
             android:key="gamespace_suppress_fullscreen_intent"
             android:summary="@string/suppress_fullscreen_intent_summary"
-            android:title="@string/suppress_fullscreen_intent_title" />
+            android:title="@string/suppress_fullscreen_intent_title"
+            android:dependency="gamespace_enable" />
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="gamespace_stay_awake"
             android:summary="@string/stay_awake_summary"
-            android:title="@string/stay_awake_title" />
+            android:title="@string/stay_awake_title"
+            android:dependency="gamespace_enable" />
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="gamespace_lock_gesture"
             android:summary="@string/lock_gesture_summary"
-            android:title="@string/lock_gesture_title" />
+            android:title="@string/lock_gesture_title"
+            android:dependency="gamespace_enable" />
 
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="gamespace_auto_brightness_disabled"
             android:summary="@string/auto_brightness_disabled_summary"
-            android:title="@string/auto_brightness_disabled_title" />
+            android:title="@string/auto_brightness_disabled_title"
+            android:dependency="gamespace_enable" />
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="gamespace_tfgesture_disabled"
             android:summary="@string/three_screenshot_disabled_summary"
-            android:title="@string/three_screenshot_disabled_title" />
+            android:title="@string/three_screenshot_disabled_title"
+            android:dependency="gamespace_enable" />
 
         <lineageos.preference.CustomSeekBarPreference
             android:key="gamespace_menu_opacity"
@@ -99,7 +115,8 @@
             app:continuousUpdates="true"
             android:max="100"
             android:min="0"
-            app:units="%" />
+            app:units="%"
+            android:dependency="gamespace_enable" />
 
     </PreferenceCategory>
 
@@ -111,7 +128,8 @@
             android:key="game_dashboard_settings"
             android:title="@string/game_dashboard_title"
             android:summary="@string/game_dashboard_summary"
-            android:persistent="false">
+            android:persistent="false"
+            android:dependency="gamespace_enable">
             <intent
                 android:targetPackage="com.google.android.gms"
                 android:targetClass="com.google.android.gms.gp.gameservice.SettingsActivity" />
@@ -121,13 +139,15 @@
             android:key="persist.sys.gamehooks.enable"
             android:title="@string/device_preset_title"
             android:summary="@string/device_preset_summary"
-            android:defaultValue="false"/>
+            android:defaultValue="false"
+            android:dependency="gamespace_enable" />
 
     </PreferenceCategory>
 
     <com.android.settingslib.widget.FooterPreference
         android:key="settings_footer"
         android:title="@string/settings_footer"
-        android:selectable="false" />
+        android:selectable="false"
+        android:dependency="gamespace_enable" />
 
 </PreferenceScreen>

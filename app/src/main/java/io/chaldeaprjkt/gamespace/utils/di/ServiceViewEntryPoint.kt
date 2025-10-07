@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: Chaldeaprjkt
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package io.chaldeaprjkt.gamespace.utils.di
 
 import dagger.hilt.EntryPoint

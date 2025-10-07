@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: Chaldeaprjkt
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.android.systemui.screenrecord;
 
 import com.android.systemui.screenrecord.IRecordingCallback;

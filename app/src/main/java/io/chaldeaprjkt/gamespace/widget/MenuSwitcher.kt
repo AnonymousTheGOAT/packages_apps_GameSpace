@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2021 Chaldeaprjkt
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package io.chaldeaprjkt.gamespace.widget
 
 import android.app.ActivityTaskManager

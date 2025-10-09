@@ -135,7 +135,7 @@
                 android:targetClass="com.google.android.gms.gp.gameservice.SettingsActivity" />
         </Preference>
 
-        <lineageos.preference.SystemPropertySwitchPreference
+        <io.chaldeaprjkt.gamespace.preferences.SystemPropertySwitchPreference
             android:key="persist.sys.gamehooks.enable"
             android:title="@string/device_preset_title"
             android:summary="@string/device_preset_summary"

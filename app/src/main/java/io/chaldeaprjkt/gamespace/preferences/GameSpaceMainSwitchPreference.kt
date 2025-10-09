@@ -6,7 +6,6 @@
 package io.chaldeaprjkt.gamespace.preferences
 
 import android.content.Context
-import android.os.SystemProperties
 import android.os.UserHandle
 import android.provider.Settings
 import android.provider.Settings.System.GAMESPACE_GAME_LIST
@@ -44,7 +43,6 @@ class GameSpaceMainSwitchPreference : MainSwitchPreference {
                 "",
                 UserHandle.USER_CURRENT,
             )
-            SystemProperties.set(GAME_HOOKS_ENABLE, "false")
         }
 
         fun save() {
@@ -55,9 +53,6 @@ class GameSpaceMainSwitchPreference : MainSwitchPreference {
                     UserHandle.USER_CURRENT,
                 )
             db.edit().putString(GAMESPACE_GAME_LIST, userGames).apply()
-
-            val gameHooks = SystemProperties.getBoolean(GAME_HOOKS_ENABLE, false)
-            db.edit().putBoolean(GAME_HOOKS_ENABLE, gameHooks).apply()
         }
 
         fun restore() {
@@ -68,9 +63,6 @@ class GameSpaceMainSwitchPreference : MainSwitchPreference {
                 userGames,
                 UserHandle.USER_CURRENT,
             )
-
-            val gameHooks = db.getBoolean(GAME_HOOKS_ENABLE, false)
-            SystemProperties.set(GAME_HOOKS_ENABLE, "${gameHooks}")
         }
 
         override fun getBoolean(key: String, defaultValue: Boolean): Boolean {
@@ -92,6 +84,5 @@ class GameSpaceMainSwitchPreference : MainSwitchPreference {
 
     companion object {
         private const val KEY_ENABLE = "gamespace_enable"
-        private const val GAME_HOOKS_ENABLE = "persist.sys.gamehooks.enable"
     }
 }

@@ -46,7 +46,7 @@ public class GameSpaceManagerService extends Service {
     private static final String THREAD_NAME = "GameSpaceManagerThread";
     private static final String GAME_LIST_SETTING = Settings.System.GAMESPACE_GAME_LIST;
     private static final Set<String> VALID_MODES = Set.of("1", "2", "3");
-    private static final String MODE_PERFORMANCE = "2";
+    private static final String MODE_STANDARD = "1";
 
     private static final String NOTIFICATION_CHANNEL_ID = "gamespace_notif_channel";
 
@@ -205,7 +205,7 @@ public class GameSpaceManagerService extends Service {
         }
 
         if (!gameMap.containsKey(packageName)) {
-            gameMap.put(packageName, MODE_PERFORMANCE);
+            gameMap.put(packageName, MODE_STANDARD);
             String updatedList = serializeGameMap(gameMap);
             Settings.System.putStringForUser(
                     mContentResolver, GAME_LIST_SETTING, updatedList, UserHandle.USER_CURRENT);

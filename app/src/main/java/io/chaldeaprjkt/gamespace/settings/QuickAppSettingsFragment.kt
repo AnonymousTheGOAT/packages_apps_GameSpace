@@ -17,6 +17,7 @@ import android.content.pm.PackageManager
 import android.content.pm.UserInfo
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.UserHandle
 import android.os.UserManager
 import android.provider.Settings
 import android.view.Menu
@@ -65,7 +66,10 @@ class QuickAppSettingsFragment : Fragment(R.layout.quick_start_app_layout) {
     fun putAppsForUser(packageName: String, action: Action) {
         val cr = requireContext().contentResolver
 
-        val apps = Settings.System.getString(cr, QUICK_START_APPS).split(",").toMutableSet()
+        val apps =
+            Settings.System.getStringForUser(cr, getKey(), UserHandle.USER_CURRENT)
+                ?.split(",")
+                ?.toMutableSet() ?: mutableSetOf<String>()
 
         when (action) {
             Action.ADD -> apps.add(packageName)
@@ -75,7 +79,7 @@ class QuickAppSettingsFragment : Fragment(R.layout.quick_start_app_layout) {
 
         Settings.System.putStringForUser(
             cr,
-            QUICK_START_APPS,
+            getKey(),
             apps.joinToString(separator = ","),
             currentUser,
         )
@@ -135,7 +139,12 @@ class QuickAppSettingsFragment : Fragment(R.layout.quick_start_app_layout) {
 
     /** @return an initial list of packages that should appear as selected. */
     private fun getInitialCheckedList(): List<String> {
-        val flattenedString = Settings.System.getString(requireContext().contentResolver, getKey())
+        val flattenedString =
+            Settings.System.getStringForUser(
+                requireContext().contentResolver,
+                getKey(),
+                UserHandle.USER_CURRENT,
+            )
         return flattenedString?.takeIf { it.isNotBlank() }?.split(",")?.toList() ?: emptyList()
     }
 

@@ -17,6 +17,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.view.Display;
@@ -43,6 +44,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class QuickStartAppView extends LinearLayout {
+
+    private static final String QUICK_START_APPS = "quick_start_apps";
+
     private RecyclerView recyclerView;
     private Context mContext;
     private SettingsContentObserver mObserver;
@@ -76,7 +80,7 @@ public class QuickStartAppView extends LinearLayout {
         mObserver = new SettingsContentObserver(new Handler());
         mContext.getContentResolver()
                 .registerContentObserver(
-                        Settings.System.getUriFor("quick_start_apps"), true, mObserver);
+                        Settings.System.getUriFor(QUICK_START_APPS), true, mObserver);
         mPackageManager = mContext.getPackageManager();
         mActivityOptions = ActivityOptions.makeBasic();
         mActivityOptions.setLaunchWindowingMode(WindowConfiguration.WINDOWING_MODE_FREEFORM);
@@ -84,7 +88,8 @@ public class QuickStartAppView extends LinearLayout {
 
     private void updateAppIcons() {
         String appPackageNames =
-                Settings.System.getString(mContext.getContentResolver(), "quick_start_apps");
+                Settings.System.getStringForUser(
+                        mContext.getContentResolver(), QUICK_START_APPS, UserHandle.USER_CURRENT);
         if (appPackageNames != null && !appPackageNames.isEmpty()) {
             String[] packages = appPackageNames.split(",");
             if (packages.length > 0) {
@@ -99,10 +104,10 @@ public class QuickStartAppView extends LinearLayout {
     }
 
     private void setupAppIcons(String[] packages) {
-        recyclerView.setHasFixedSize(true); // 设置固定大小
-        recyclerView.setItemAnimator(new DefaultItemAnimator()); // 设置默认动画
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
         LinearLayoutManager mLayoutManage = new LinearLayoutManager(mContext);
-        mLayoutManage.setOrientation(RecyclerView.HORIZONTAL); // 设置滚动方向，横向滚动
+        mLayoutManage.setOrientation(RecyclerView.HORIZONTAL);
         recyclerView.setLayoutManager(mLayoutManage);
         recyclerView.setAdapter(new MyRecyclerViewAdapter(recyclerView, Arrays.asList(packages)));
 

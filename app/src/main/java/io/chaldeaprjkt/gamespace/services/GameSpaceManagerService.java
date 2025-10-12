@@ -146,7 +146,9 @@ public class GameSpaceManagerService extends Service {
         public void onReceive(Context context, Intent intent) {
             if (mPrefs == null) {
                 try {
-                    mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+                    mPrefs =
+                            PreferenceManager.getDefaultSharedPreferences(
+                                    GameSpaceManagerService.this);
                 } catch (RuntimeException e) {
                     return;
                 }

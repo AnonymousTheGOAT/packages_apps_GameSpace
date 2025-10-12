@@ -82,8 +82,6 @@ public class GameSpaceManagerService extends Service {
 
     @Override
     public void onCreate() {
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-
         mHandlerThread = new HandlerThread(THREAD_NAME);
         mHandlerThread.start();
         mBackgroundHandler = new Handler(mHandlerThread.getLooper());
@@ -146,6 +144,13 @@ public class GameSpaceManagerService extends Service {
     private class PackageChangeReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if (mPrefs == null) {
+                try {
+                    mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+                } catch (RuntimeException e) {
+                    return;
+                }
+            }
             if (!mPrefs.getBoolean(KEY_ENABLE, true)) {
                 return;
             }

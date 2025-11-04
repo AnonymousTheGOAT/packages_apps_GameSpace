@@ -14,6 +14,7 @@ android_app {
     ],
     platform_apis: true,
     privileged: true,
+    privapp_allowlist: "privapp_whitelist_io.chaldeaprjkt.gamespace.xml",
     system_ext_specific: true,
     manifest: "AndroidManifest.xml",
     certificate: "platform",
@@ -55,17 +56,8 @@ android_app {
 
     required: [
         "ANGLE",
-        "privapp_whitelist_io.chaldeaprjkt.gamespace.xml",
         "default-permissions_io.chaldeaprjkt.gamespace.xml",
     ],
-}
-
-prebuilt_etc_xml {
-    name: "privapp_whitelist_io.chaldeaprjkt.gamespace.xml",
-    src: "privapp_whitelist_io.chaldeaprjkt.gamespace.xml",
-    system_ext_specific: true,
-    filename_from_src: true,
-    relative_install_path: "permissions",
 }
 
 prebuilt_etc {

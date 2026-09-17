@@ -49,7 +49,7 @@
     <string name="gamespace_menu_opacity_title">Overlay menu opacity level</string>
 
     <!-- Advanced settings -->
-    <string name="advanced_settings_title">Advenced settings</string>
+    <string name="advanced_settings_title">Advanced settings</string>
 
     <!-- Device Preset -->
     <string name="device_preset_title">Device Preset</string>
